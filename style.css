@@ -5,89 +5,310 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Arial';
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    flex-direction: column;
     transition: background 0.3s ease;
+    padding-top: 70px;
+    padding-bottom: 60px;
 }
 
-/* تنسيق زر التبديل بين اللغات */
-.language-toggle-container {
+/* الشريط العلوي الثابت */
+.header {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1001;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: white;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 999;
+    animation: slideDown 0.3s ease;
 }
 
-.language-toggle {
-    background: white;
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.menu-btn {
+    background: none;
     border: none;
-    border-radius: 50px;
-    padding: 12px 18px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #333;
+    padding: 8px;
+    transition: all 0.3s;
+    border-radius: 8px;
+}
+
+.menu-btn:hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+    flex: 1;
+    text-align: center;
+}
+
+.header-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.language-toggle, .notification-btn {
+    background: #f5f5f5;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 25px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    font-weight: 600;
-    color: #333;
-    font-family: inherit;
+    gap: 6px;
     font-size: 14px;
+    color: #333;
+    transition: all 0.3s;
+    font-weight: 500;
 }
 
-.language-toggle:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.language-toggle:active {
-    transform: scale(0.98);
+.language-toggle:hover, .notification-btn:hover {
+    background: #e0e0e0;
+    transform: scale(1.05);
 }
 
 .language-icon {
     font-size: 18px;
-    display: inline-block;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s;
 }
 
 .language-toggle:hover .language-icon {
-    transform: rotateY(180deg);
+    transform: rotate(180deg);
 }
 
-.language-text {
-    min-width: 60px;
+.notification-badge {
+    background: #764ba2;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* القائمة الجانبية */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: white;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+body[dir="ltr"] .sidebar {
+    right: auto;
+    left: -300px;
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.active {
+    right: 0;
+}
+
+body[dir="ltr"] .sidebar.active {
+    left: 0;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h2 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.close-sidebar {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.close-sidebar:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    padding: 15px 20px;
+    text-align: right;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s;
+    border-right: 4px solid transparent;
+}
+
+.nav-btn:hover {
+    background: #f5f5f5;
+    border-right-color: #667eea;
+}
+
+.nav-btn.active {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+    border-right-color: #667eea;
+    color: #667eea;
+    font-weight: bold;
+}
+
+.nav-btn .icon {
+    font-size: 24px;
+    min-width: 30px;
+}
+
+.nav-btn .text {
+    flex: 1;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    background: #f5f5f5;
     text-align: center;
+    color: #666;
+    font-size: 14px;
+    border-top: 1px solid #e0e0e0;
 }
 
-/* تنسيق الحاوية الرئيسية */
+.sidebar-footer strong {
+    color: #667eea;
+    display: block;
+    margin-top: 5px;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* المحتوى الرئيسي */
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    min-height: calc(100vh - 130px);
+}
+
+.app-section {
+    width: 100%;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: fadeIn 0.3s ease;
+}
+
+.app-section.active {
+    display: block;
+    opacity: 1;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .container {
     width: 100%;
     max-width: 500px;
-    position: relative;
+    margin: 0 auto;
 }
 
 .calculator-card {
     background: white;
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     text-align: center;
     transition: all 0.3s ease;
 }
 
-h1 {
+.calculator-card h2 {
     color: #333;
     margin-bottom: 10px;
     font-size: 2em;
     transition: color 0.3s ease;
 }
 
-.subtitle {
+.calculator-card .subtitle {
     color: #666;
     margin-bottom: 30px;
     transition: color 0.3s ease;
@@ -98,7 +319,7 @@ h1 {
     text-align: right;
 }
 
-label {
+.form-group label {
     display: block;
     margin-bottom: 8px;
     color: #555;
@@ -106,22 +327,23 @@ label {
     transition: color 0.3s ease;
 }
 
-select, input {
+.form-control, select, input {
     width: 100%;
     padding: 12px;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
     font-size: 16px;
-    transition: border-color 0.3s, background-color 0.3s;
+    transition: all 0.3s;
     font-family: inherit;
 }
 
-select:focus, input:focus {
+.form-control:focus, select:focus, input:focus {
     outline: none;
     border-color: #667eea;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
 }
 
-button[onclick] {
+.btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
@@ -130,34 +352,24 @@ button[onclick] {
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s;
     margin-top: 10px;
     font-family: inherit;
+    width: 100%;
 }
 
-button[onclick]:hover {
+.btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
 }
 
-button[onclick]:active {
+.btn-primary:active {
     transform: translateY(0);
 }
 
 .result-container {
     margin-top: 30px;
     animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .result-card {
@@ -175,17 +387,13 @@ button[onclick]:active {
     transition: color 0.3s ease;
 }
 
-.age-main span {
-    font-size: 1.2em;
-}
-
 .age-details {
     display: flex;
     justify-content: space-around;
     margin: 20px 0;
     padding: 20px 0;
-    border-top: 2px solid rgba(0,0,0,0.1);
-    border-bottom: 2px solid rgba(0,0,0,0.1);
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .detail-item {
@@ -219,36 +427,141 @@ button[onclick]:active {
     transition: color 0.3s ease;
 }
 
-/* تنسيقات نظام الإشعارات */
+/* الآلة الحاسبة */
+.calc-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 2.5em;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: right;
+    font-weight: bold;
+    word-break: break-all;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.calc-input {
+    width: 100%;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5em;
+    text-align: right;
+    padding: 0;
+}
+
+.calc-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.calc-btn {
+    padding: 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #f0f0f0;
+    color: #333;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.calc-btn:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.calc-btn:active {
+    transform: translateY(0);
+}
+
+.calc-operator {
+    background: #667eea;
+    color: white;
+}
+
+.calc-operator:hover {
+    background: #764ba2;
+}
+
+.calc-clear, .calc-delete {
+    background: #ff6b6b;
+    color: white;
+}
+
+.calc-clear:hover, .calc-delete:hover {
+    background: #ff5252;
+}
+
+.calc-equal {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    grid-column: span 2;
+}
+
+.calc-equal:hover {
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.calc-zero {
+    grid-column: span 2;
+}
+
+/* التذييل الثابت */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    z-index: 998;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.footer strong {
+    color: #667eea;
+}
+
+/* نافذة الإشعارات */
 .notification-prompt {
     position: fixed;
-    bottom: 20px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     background: white;
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    z-index: 1000;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
     animation: slideUp 0.5s ease-out;
     max-width: 90%;
     width: 400px;
-    transition: background-color 0.3s ease;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translate(-50%, 100px);
-        opacity: 0;
-    }
-    to {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-}
-
-.prompt-content {
-    text-align: center;
+    transition: all 0.3s ease;
 }
 
 .prompt-content p {
@@ -271,7 +584,7 @@ button[onclick]:active {
     font-size: 14px;
     cursor: pointer;
     font-family: inherit;
-    transition: transform 0.2s;
+    transition: all 0.2s;
 }
 
 .btn-yes {
@@ -282,64 +595,10 @@ button[onclick]:active {
 .btn-no {
     background: #f0f0f0;
     color: #666;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-yes:hover, .btn-no:hover {
     transform: translateY(-2px);
-}
-
-/* زر إدارة الإشعارات */
-.notification-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 999;
-    background: white;
-    border-radius: 50px;
-    padding: 10px 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #333;
-    transition: all 0.3s;
-}
-
-.notification-toggle:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-}
-
-.notification-badge {
-    background: #764ba2;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
-
-/* تأثير النبض للإشعارات النشطة */
-.notification-active {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(118, 75, 162, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(118, 75, 162, 0);
-    }
 }
 
 /* الوضع الليلي */
@@ -348,74 +607,89 @@ button[onclick]:active {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     }
     
+    .header {
+        background: #1a1a2e;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .menu-btn {
+        color: #e0e0e0;
+    }
+    
+    .menu-btn:hover {
+        background: #2a2a3e;
+    }
+    
+    .app-title {
+        color: #667eea;
+    }
+    
+    .language-toggle, .notification-btn {
+        background: #2a2a3e;
+        color: #e0e0e0;
+    }
+    
     .calculator-card {
         background: #1a1a2e;
         color: white;
     }
     
-    h1, .subtitle {
+    .calculator-card h2 {
         color: #e0e0e0;
     }
     
-    label {
+    .form-group label {
         color: #ccc;
     }
     
-    select, input {
+    .form-control, select, input {
         background: #2a2a3e;
         color: white;
         border-color: #3a3a4e;
     }
     
-    .result-card {
-        background: linear-gradient(135deg, #2a2a3e 0%, #1a1a2e 100%);
-    }
-    
-    .detail-item small {
+    .footer {
+        background: #1a1a2e;
+        border-top-color: #3a3a4e;
         color: #aaa;
-    }
-    
-    .next-birthday {
-        color: #ccc;
-    }
-    
-    .notification-prompt, .notification-toggle {
-        background: #2a2a3e;
-        color: white;
-    }
-    
-    .btn-no {
-        background: #3a3a4e;
-        color: #ddd;
-    }
-    
-    .language-toggle {
-        background: #2a2a3e;
-        color: white;
     }
 }
 
-/* استجابة الشاشات الصغيرة */
-@media (max-width: 480px) {
-    .language-toggle-container {
-        top: 10px;
-        left: 10px;
+/* الشاشات الصغيرة */
+@media (max-width: 600px) {
+    body {
+        padding-top: 60px;
+        padding-bottom: 60px;
     }
     
-    .language-toggle {
-        padding: 10px 14px;
-        font-size: 12px;
+    .header {
+        height: 60px;
+        padding: 0 15px;
+    }
+    
+    .app-title {
+        font-size: 20px;
     }
     
     .calculator-card {
         padding: 20px;
     }
     
-    h1 {
+    .calculator-card h2 {
         font-size: 1.5em;
     }
     
     .age-main {
         font-size: 2em;
+    }
+    
+    .age-details {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .notification-prompt {
+        width: calc(100% - 40px);
+        max-width: none;
     }
 }

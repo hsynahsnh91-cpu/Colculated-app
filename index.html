@@ -10,58 +10,53 @@
     <!-- القائمة الجانبية -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2>📱 التطبيقات</h2>
+            <h2 id="sidebarTitle">📱 التطبيقات</h2>
             <button class="close-sidebar" id="closeSidebar">✕</button>
         </div>
         <nav class="sidebar-nav">
             <button class="nav-btn active" data-app="age-calculator">
                 <span class="icon">🎂</span>
-                <span class="text">حساب العمر</span>
+                <span class="text" data-lang-ar="حساب العمر" data-lang-en="Age Calculator">حساب العمر</span>
             </button>
             <button class="nav-btn" data-app="calculator">
                 <span class="icon">🧮</span>
-                <span class="text">الآلة الحاسبة</span>
+                <span class="text" data-lang-ar="الآلة الحاسبة" data-lang-en="Simple Calculator">الآلة الحاسبة</span>
             </button>
         </nav>
+        <div class="sidebar-footer">
+            <p>&copy; 2026 <strong>أبوعمر</strong><br>جميع الحقوق محفوظة</p>
+        </div>
     </div>
 
     <!-- غطاء القائمة الجانبية -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- الشريط العلوي -->
-    <div class="top-bar">
-        <!-- زر فتح القائمة الجانبية -->
-        <button class="menu-btn" id="menuBtn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-
-        <!-- زر تبديل اللغة -->
-        <button class="language-toggle" id="languageToggle" aria-label="تبديل اللغة">
-            <span class="language-icon">🌍</span>
-            <span class="language-text" id="languageText">English</span>
-        </button>
-
-        <!-- أيقونة الإشعارات -->
-        <div class="notification-toggle" id="notificationToggle">
-            🔔 <span>الإشعارات</span>
-            <span class="notification-badge" id="notificationStatus">OFF</span>
+    <!-- الشريط العلوي الثابت -->
+    <header class="header">
+        <button class="menu-btn" id="menuBtn" aria-label="فتح القائمة">☰</button>
+        <h1 class="app-title">حاسبتك الذكية</h1>
+        <div class="header-controls">
+            <button class="language-toggle" id="languageToggle" aria-label="تبديل اللغة">
+                <span class="language-icon">🌍</span>
+            </button>
+            <button class="notification-btn" id="notificationToggleBtn" aria-label="الإشعارات">
+                🔔 <span class="notification-badge" id="notificationStatus">OFF</span>
+            </button>
         </div>
-    </div>
+    </header>
 
     <!-- المحتوى الرئيسي -->
-    <div class="main-content">
+    <main class="main-content">
         <!-- تطبيق حساب العمر -->
-        <div class="app-section" id="age-calculator-app">
+        <div class="app-section active" id="age-calculator-app">
             <div class="container">
                 <div class="calculator-card">
-                    <h1 id="pageTitle">🎂 حاسبة العمر</h1>
+                    <h2 id="pageTitle">🎂 حاسبة العمر</h2>
                     <p class="subtitle" id="pageSubtitle">احسب عمرك بالميلادي والهجري بدقة</p>
                     
                     <div class="form-group">
                         <label for="calendarType" id="calendarLabel">نوع التاريخ:</label>
-                        <select id="calendarType">
+                        <select id="calendarType" class="form-control">
                             <option value="gregorian" id="gregorianOption">ميلادي</option>
                             <option value="hijri" id="hijriOption">هجري</option>
                         </select>
@@ -69,10 +64,10 @@
 
                     <div class="form-group">
                         <label for="birthDate" id="birthDateLabel">تاريخ الميلاد:</label>
-                        <input type="date" id="birthDate" required>
+                        <input type="date" id="birthDate" class="form-control" required>
                     </div>
 
-                    <button id="calculateButton" onclick="calculateAge()">احسب العمر 🕒</button>
+                    <button class="btn-primary" id="calculateButton" onclick="calculateAge()">احسب العمر 🕒</button>
 
                     <div id="result" class="result-container" style="display: none;">
                         <div class="result-card">
@@ -107,7 +102,7 @@
         <div class="app-section" id="calculator-app" style="display: none;">
             <div class="container">
                 <div class="calculator-card">
-                    <h1>🧮 الآلة الحاسبة</h1>
+                    <h2>🧮 الآلة الحاسبة</h2>
                     <p class="subtitle">احسب العمليات الحسابية بسهولة</p>
                     
                     <div class="calc-display" id="calcDisplay">0</div>
@@ -131,7 +126,7 @@
                         <button class="calc-btn" onclick="appendCalc('1')">1</button>
                         <button class="calc-btn" onclick="appendCalc('2')">2</button>
                         <button class="calc-btn" onclick="appendCalc('3')">3</button>
-                        <button class="calc-btn calc-equal" onclick="calculateCalc()" rowspan="2">=</button>
+                        <button class="calc-btn calc-equal" onclick="calculateCalc()">=</button>
                         
                         <button class="calc-btn calc-zero" onclick="appendCalc('0')">0</button>
                         <button class="calc-btn" onclick="appendCalc('.')">.</button>
@@ -139,11 +134,11 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Footer -->
+    <!-- التذييل الثابت -->
     <footer class="footer">
-        <p>&copy; جميع الحقوق محفوظة 2026 - <strong>أبوعمر</strong></p>
+        <p>&copy; 2026 <strong>أبوعمر</strong> | جميع الحقوق محفوظة</p>
     </footer>
 
     <script src="script.js"></script>
