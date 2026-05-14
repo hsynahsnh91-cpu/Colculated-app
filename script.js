@@ -19,17 +19,15 @@ const translations = {
         errorBirthDate: 'الرجاء إدخال تاريخ الميلاد',
         errorFutureDate: 'تاريخ الميلاد لا يمكن أن يكون في المستقبل!',
         notificationsLabel: 'الإشعارات',
-        notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتذكيرك بتحديث عمرك عندما تخرج من التطبيق؟',
+        notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتلقي رسالة يومية؟',
         enableNotifications: '✅ نعم، فعل الإشعارات',
         skipNotifications: '❌ ليس الآن',
         notificationsUnsupported: 'متصفحك لا يدعم الإشعارات',
         notificationsBlocked: 'تم حظر الإشعارات. الرجاء السماح بها من إعدادات المتصفح',
         notificationsRequired: 'يجب السماح بالإشعارات لتفعيل الميزة',
         notificationsEnabled: '🎉 تم تفعيل الإشعارات!',
-        notificationsEnabledBody: 'سنذكرك بتحديث عمرك بشكل دوري',
+        notificationsEnabledBody: 'ستتلقى رسالة يومية كل 24 ساعة',
         notificationsDisabled: 'تم إيقاف الإشعارات',
-        ageReminder: '🎂 تذكير من حاسبة العمر',
-        ageReminderBody: 'هل تغير عمرك؟ افتح التطبيق لتحديث عمرك!',
         appReady: '✅ التطبيق جاهز للعمل'
     },
     en: {
@@ -51,17 +49,15 @@ const translations = {
         errorBirthDate: 'Please enter your birth date',
         errorFutureDate: 'Birth date cannot be in the future!',
         notificationsLabel: 'Notifications',
-        notificationPrompt: '🔔 Do you want to enable notifications to remind you to update your age when you leave the app?',
+        notificationPrompt: '🔔 Do you want to enable notifications to receive a daily message?',
         enableNotifications: '✅ Yes, Enable Notifications',
         skipNotifications: '❌ Not Now',
         notificationsUnsupported: 'Your browser does not support notifications',
         notificationsBlocked: 'Notifications are blocked. Please allow them in your browser settings',
         notificationsRequired: 'You must allow notifications to enable this feature',
         notificationsEnabled: '🎉 Notifications Enabled!',
-        notificationsEnabledBody: 'We will remind you to update your age periodically',
+        notificationsEnabledBody: 'You will receive a daily message every 24 hours',
         notificationsDisabled: 'Notifications Disabled',
-        ageReminder: '🎂 Age Calculator Reminder',
-        ageReminderBody: 'Did your age change? Open the app to update your age!',
         appReady: '✅ App is ready to use'
     }
 };
@@ -167,7 +163,7 @@ function hijriToGregorianInternal(year, month, day) {
            Math.floor((month - 1) / 2) + day + 1948440 - 385;
 }
 
-// ========== نظام الإشعارات ==========
+// ========== نظام الإشعارات اليومية المحسّن (كل 24 ساعة) ==========
 let notificationSystem = {
     notificationInterval: null,
     notificationsEnabled: false,
@@ -177,7 +173,7 @@ let notificationSystem = {
         this.createNotificationToggle();
         
         if (this.notificationsEnabled && Notification.permission === 'granted') {
-            this.startReminders();
+            this.startDailyReminders();
             this.updateToggleButton(true);
         }
     },
@@ -236,7 +232,8 @@ let notificationSystem = {
     activateNotifications: function() {
         this.notificationsEnabled = true;
         localStorage.setItem('notificationsEnabled', 'true');
-        this.startReminders();
+        localStorage.setItem('lastNotificationTime', Date.now().toString());
+        this.startDailyReminders();
         this.updateToggleButton(true);
         
         const trans = translations[currentLanguage];
@@ -255,20 +252,34 @@ let notificationSystem = {
         alert(translations[currentLanguage].notificationsDisabled);
     },
     
-    startReminders: function() {
+    startDailyReminders: function() {
         this.stopReminders();
         
-        setTimeout(() => {
-            if (document.hidden && this.notificationsEnabled) {
-                this.sendAgeReminder();
-            }
-        }, 30000);
+        const lastNotificationTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
+        const now = Date.now();
+        const timeSinceLastNotification = now - lastNotificationTime;
+        const oneDay = 24 * 60 * 60 * 1000; // 24 ساعة بالملي ثانية
         
+        // إذا مرت 24 ساعة أو أكثر، أرسل إشعار فوراً
+        if (timeSinceLastNotification >= oneDay) {
+            this.sendDailyMessage();
+            localStorage.setItem('lastNotificationTime', now.toString());
+        }
+        
+        // تحقق كل ساعة من الحاجة لإرسال إشعار
         this.notificationInterval = setInterval(() => {
-            if (document.hidden && this.notificationsEnabled) {
-                this.sendAgeReminder();
+            if (this.notificationsEnabled && Notification.permission === 'granted') {
+                const lastTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
+                const timeSinceLastMessage = Date.now() - lastTime;
+                
+                // إذا مرت 24 ساعة، أرسل الإشعار التالي
+                if (timeSinceLastMessage >= oneDay) {
+                    this.sendDailyMessage();
+                    localStorage.setItem('lastNotificationTime', Date.now().toString());
+                    console.log('📢 تم إرسال الإشعار اليومي');
+                }
             }
-        }, 60 * 60 * 1000);
+        }, 60 * 60 * 1000); // التحقق كل ساعة
     },
     
     stopReminders: function() {
@@ -278,16 +289,9 @@ let notificationSystem = {
         }
     },
     
-    sendAgeReminder: function() {
-        const birthDate = localStorage.getItem('birthDate');
-        
-        if (birthDate) {
-            const trans = translations[currentLanguage];
-            this.sendNotification(
-                trans.ageReminder,
-                trans.ageReminderBody
-            );
-        }
+    sendDailyMessage: function() {
+        // الرسالة المطلوبة: العنوان "message of calculator" والمضمون "لاتنس ذكر الله"
+        this.sendNotification('message of calculator', 'لاتنس ذكر الله');
     },
     
     sendNotification: function(title, body) {
@@ -297,7 +301,8 @@ let notificationSystem = {
                 icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
                 badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
                 vibrate: [200, 100, 200],
-                tag: 'age-calculator-reminder'
+                tag: 'age-calculator-reminder',
+                requireInteraction: false
             };
             
             const notification = new Notification(title, options);
@@ -306,6 +311,8 @@ let notificationSystem = {
                 window.focus();
                 notification.close();
             };
+            
+            console.log('🔔 إشعار مرسل: ' + title);
         }
     },
     
