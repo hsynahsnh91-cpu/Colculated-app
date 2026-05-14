@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,47 +7,55 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- زر التبديل بين اللغات -->
+    <div class="language-toggle-container">
+        <button class="language-toggle" id="languageToggle" aria-label="تبديل اللغة">
+            <span class="language-icon">🌍</span>
+            <span class="language-text" id="languageText">English</span>
+        </button>
+    </div>
+
     <div class="container">
         <div class="calculator-card">
-            <h1>🎂 حاسبة العمر</h1>
-            <p class="subtitle">احسب عمرك بالميلادي والهجري بدقة</p>
+            <h1 id="pageTitle">🎂 حاسبة العمر</h1>
+            <p class="subtitle" id="pageSubtitle">احسب عمرك بالميلادي والهجري بدقة</p>
             
             <div class="form-group">
-                <label for="calendarType">نوع التاريخ:</label>
+                <label for="calendarType" id="calendarLabel">نوع التاريخ:</label>
                 <select id="calendarType">
-                    <option value="gregorian">ميلادي</option>
-                    <option value="hijri">هجري</option>
+                    <option value="gregorian" id="gregorianOption">ميلادي</option>
+                    <option value="hijri" id="hijriOption">هجري</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="birthDate">تاريخ الميلاد:</label>
+                <label for="birthDate" id="birthDateLabel">تاريخ الميلاد:</label>
                 <input type="date" id="birthDate" required>
             </div>
 
-            <button onclick="calculateAge()">احسب العمر 🕒</button>
+            <button id="calculateButton" onclick="calculateAge()">احسب العمر 🕒</button>
 
             <div id="result" class="result-container" style="display: none;">
                 <div class="result-card">
                     <div class="age-main">
-                        <span id="ageYears">0</span> سنة
+                        <span id="ageYears">0</span> <span id="yearText">سنة</span>
                     </div>
                     <div class="age-details">
                         <div class="detail-item">
                             <span id="ageDays">0</span>
-                            <small>يوم</small>
+                            <small id="dayText">يوم</small>
                         </div>
                         <div class="detail-item">
                             <span id="ageHours">0</span>
-                            <small>ساعة</small>
+                            <small id="hourText">ساعة</small>
                         </div>
                         <div class="detail-item">
                             <span id="ageMinutes">0</span>
-                            <small>دقيقة</small>
+                            <small id="minuteText">دقيقة</small>
                         </div>
                     </div>
                     <div class="next-birthday">
-                        <p>🎈 عيد ميلادك القادم:</p>
+                        <p id="nextBirthdayLabel">🎈 عيد ميلادك القادم:</p>
                         <span id="nextBirthday">-</span>
                     </div>
                 </div>

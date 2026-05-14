@@ -1,4 +1,140 @@
-// تحويل التاريخ الهجري إلى ميلادي (تقريبي)
+// ========== نظام اللغات ==========
+const translations = {
+    ar: {
+        pageTitle: '🎂 حاسبة العمر',
+        pageSubtitle: 'احسب عمرك بالميلادي والهجري بدقة',
+        calendarLabel: 'نوع التاريخ:',
+        gregorianOption: 'ميلادي',
+        hijriOption: 'هجري',
+        birthDateLabel: 'تاريخ الميلاد:',
+        calculateButton: 'احسب العمر 🕒',
+        yearText: 'سنة',
+        dayText: 'يوم',
+        hourText: 'ساعة',
+        minuteText: 'دقيقة',
+        nextBirthdayLabel: '🎈 عيد ميلادك القادم:',
+        nextBirthdayDays: (days) => `باقي ${days} يوم`,
+        languageToggleText: 'English',
+        languageToggleAria: 'تبديل اللغة',
+        errorBirthDate: 'الرجاء إدخال تاريخ الميلاد',
+        errorFutureDate: 'تاريخ الميلاد لا يمكن أن يكون في المستقبل!',
+        notificationsLabel: 'الإشعارات',
+        notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتذكيرك بتحديث عمرك عندما تخرج من التطبيق؟',
+        enableNotifications: '✅ نعم، فعل الإشعارات',
+        skipNotifications: '❌ ليس الآن',
+        notificationsUnsupported: 'متصفحك لا يدعم الإشعارات',
+        notificationsBlocked: 'تم حظر الإشعارات. الرجاء السماح بها من إعدادات المتصفح',
+        notificationsRequired: 'يجب السماح بالإشعارات لتفعيل الميزة',
+        notificationsEnabled: '🎉 تم تفعيل الإشعارات!',
+        notificationsEnabledBody: 'سنذكرك بتحديث عمرك بشكل دوري',
+        notificationsDisabled: 'تم إيقاف الإشعارات',
+        ageReminder: '🎂 تذكير من حاسبة العمر',
+        ageReminderBody: 'هل تغير عمرك؟ افتح التطبيق لتحديث عمرك!',
+        appReady: '✅ التطبيق جاهز للعمل'
+    },
+    en: {
+        pageTitle: '🎂 Age Calculator',
+        pageSubtitle: 'Calculate your age in Gregorian and Hijri calendar accurately',
+        calendarLabel: 'Calendar Type:',
+        gregorianOption: 'Gregorian',
+        hijriOption: 'Hijri',
+        birthDateLabel: 'Birth Date:',
+        calculateButton: 'Calculate Age 🕒',
+        yearText: 'year',
+        dayText: 'day',
+        hourText: 'hour',
+        minuteText: 'minute',
+        nextBirthdayLabel: '🎈 Your Next Birthday:',
+        nextBirthdayDays: (days) => `${days} days remaining`,
+        languageToggleText: 'العربية',
+        languageToggleAria: 'Toggle Language',
+        errorBirthDate: 'Please enter your birth date',
+        errorFutureDate: 'Birth date cannot be in the future!',
+        notificationsLabel: 'Notifications',
+        notificationPrompt: '🔔 Do you want to enable notifications to remind you to update your age when you leave the app?',
+        enableNotifications: '✅ Yes, Enable Notifications',
+        skipNotifications: '❌ Not Now',
+        notificationsUnsupported: 'Your browser does not support notifications',
+        notificationsBlocked: 'Notifications are blocked. Please allow them in your browser settings',
+        notificationsRequired: 'You must allow notifications to enable this feature',
+        notificationsEnabled: '🎉 Notifications Enabled!',
+        notificationsEnabledBody: 'We will remind you to update your age periodically',
+        notificationsDisabled: 'Notifications Disabled',
+        ageReminder: '🎂 Age Calculator Reminder',
+        ageReminderBody: 'Did your age change? Open the app to update your age!',
+        appReady: '✅ App is ready to use'
+    }
+};
+
+let currentLanguage = localStorage.getItem('language') || 'ar';
+
+// دالة تحديث اللغة
+function setLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('language', lang);
+    
+    // تحديث اتجاه الصفحة
+    const htmlElement = document.getElementById('htmlRoot');
+    const html = document.querySelector('html');
+    if (lang === 'ar') {
+        htmlElement.lang = 'ar';
+        html.dir = 'rtl';
+    } else {
+        htmlElement.lang = 'en';
+        html.dir = 'ltr';
+    }
+    
+    // تحديث النصوص
+    const trans = translations[lang];
+    document.getElementById('pageTitle').textContent = trans.pageTitle;
+    document.getElementById('pageSubtitle').textContent = trans.pageSubtitle;
+    document.getElementById('calendarLabel').textContent = trans.calendarLabel;
+    document.getElementById('gregorianOption').textContent = trans.gregorianOption;
+    document.getElementById('hijriOption').textContent = trans.hijriOption;
+    document.getElementById('birthDateLabel').textContent = trans.birthDateLabel;
+    document.getElementById('calculateButton').textContent = trans.calculateButton;
+    document.getElementById('languageText').textContent = trans.languageToggleText;
+    document.getElementById('languageToggle').setAttribute('aria-label', trans.languageToggleAria);
+    document.getElementById('nextBirthdayLabel').textContent = trans.nextBirthdayLabel;
+    document.getElementById('yearText').textContent = trans.yearText;
+    document.getElementById('dayText').textContent = trans.dayText;
+    document.getElementById('hourText').textContent = trans.hourText;
+    document.getElementById('minuteText').textContent = trans.minuteText;
+    
+    // تحديث نص الإشعارات إذا كان موجوداً
+    const notificationToggle = document.getElementById('notificationToggle');
+    if (notificationToggle) {
+        const notification = notificationToggle.querySelector('span:not(.notification-badge)');
+        if (notification) {
+            notification.textContent = trans.notificationsLabel;
+        }
+    }
+    
+    // تحديث النتيجة إذا كانت مرئية
+    updateResultText();
+}
+
+function updateResultText() {
+    const yearSpan = document.querySelector('.age-main span:last-child');
+    if (yearSpan) {
+        yearSpan.textContent = translations[currentLanguage].yearText;
+    }
+}
+
+// زر التبديل بين اللغات
+document.addEventListener('DOMContentLoaded', function() {
+    const languageToggle = document.getElementById('languageToggle');
+    
+    languageToggle.addEventListener('click', function() {
+        const newLang = currentLanguage === 'ar' ? 'en' : 'ar';
+        setLanguage(newLang);
+    });
+    
+    // تحديث اللغة الأولية
+    setLanguage(currentLanguage);
+});
+
+// ========== تحويل التاريخ الهجري إلى ميلادي ==========
 function hijriToGregorian(hijriDate) {
     const hijriParts = hijriDate.split('-');
     const hijriYear = parseInt(hijriParts[0]);
@@ -14,7 +150,7 @@ function hijriToGregorian(hijriDate) {
     return date;
 }
 
-// تحويل التاريخ الميلادي إلى هجري (تقريبي)
+// ========== تحويل التاريخ الميلادي إلى هجري ==========
 function gregorianToHijri(gregorianDate) {
     const date = new Date(gregorianDate);
     const jd = Math.floor(date.getTime() / 86400000) + 2440588;
@@ -29,13 +165,6 @@ function hijriToGregorianInternal(year, month, day) {
     return Math.floor((11 * year + 3) / 30) + 
            354 * year + 30 * month - 
            Math.floor((month - 1) / 2) + day + 1948440 - 385;
-}
-
-// الحصول على التاريخ الهجري الحالي
-function getCurrentHijriDate() {
-    const now = new Date();
-    const hijri = gregorianToHijri(now);
-    return new Date(hijriToGregorian(`${hijri.year}-${hijri.month}-1`));
 }
 
 // ========== نظام الإشعارات ==========
@@ -62,7 +191,8 @@ let notificationSystem = {
         const toggle = document.createElement('div');
         toggle.className = 'notification-toggle';
         toggle.id = 'notificationToggle';
-        toggle.innerHTML = '🔔 <span>الإشعارات</span> <span class="notification-badge" id="notificationStatus">' + (this.notificationsEnabled ? 'ON' : 'OFF') + '</span>';
+        const trans = translations[currentLanguage];
+        toggle.innerHTML = '🔔 <span>' + trans.notificationsLabel + '</span> <span class="notification-badge" id="notificationStatus">' + (this.notificationsEnabled ? 'ON' : 'OFF') + '</span>';
         
         toggle.onclick = () => {
             if (this.notificationsEnabled) {
@@ -81,12 +211,12 @@ let notificationSystem = {
     
     enableNotifications: function() {
         if (!('Notification' in window)) {
-            alert('متصفحك لا يدعم الإشعارات');
+            alert(translations[currentLanguage].notificationsUnsupported);
             return;
         }
 
         if (Notification.permission === 'denied') {
-            alert('تم حظر الإشعارات. الرجاء السماح بها من إعدادات المتصفح');
+            alert(translations[currentLanguage].notificationsBlocked);
             return;
         }
 
@@ -95,7 +225,7 @@ let notificationSystem = {
                 if (permission === 'granted') {
                     this.activateNotifications();
                 } else {
-                    alert('يجب السماح بالإشعارات لتفعيل الميزة');
+                    alert(translations[currentLanguage].notificationsRequired);
                 }
             });
         } else if (Notification.permission === 'granted') {
@@ -109,9 +239,10 @@ let notificationSystem = {
         this.startReminders();
         this.updateToggleButton(true);
         
+        const trans = translations[currentLanguage];
         this.sendNotification(
-            '🎉 تم تفعيل الإشعارات!',
-            'سنذكرك بتحديث عمرك بشكل دوري'
+            trans.notificationsEnabled,
+            trans.notificationsEnabledBody
         );
     },
     
@@ -121,7 +252,7 @@ let notificationSystem = {
         this.stopReminders();
         this.updateToggleButton(false);
         
-        alert('تم إيقاف الإشعارات');
+        alert(translations[currentLanguage].notificationsDisabled);
     },
     
     startReminders: function() {
@@ -151,9 +282,10 @@ let notificationSystem = {
         const birthDate = localStorage.getItem('birthDate');
         
         if (birthDate) {
+            const trans = translations[currentLanguage];
             this.sendNotification(
-                '🎂 تذكير من حاسبة العمر',
-                'هل تغير عمرك؟ افتح التطبيق لتحديث عمرك!'
+                trans.ageReminder,
+                trans.ageReminderBody
             );
         }
     },
@@ -205,19 +337,20 @@ function showNotificationPrompt() {
     if (oldPrompt) {
         oldPrompt.remove();
     }
-
+    
+    const trans = translations[currentLanguage];
     const prompt = document.createElement('div');
     prompt.className = 'notification-prompt';
     prompt.id = 'notificationPrompt';
     prompt.innerHTML = `
         <div class="prompt-content">
-            <p>🔔 هل تريد تفعيل الإشعارات لتذكيرك بتحديث عمرك عندما تخرج من التطبيق؟</p>
+            <p>${trans.notificationPrompt}</p>
             <div class="prompt-buttons">
                 <button class="btn-yes" id="enableNotificationsBtn">
-                    ✅ نعم، فعل الإشعارات
+                    ${trans.enableNotifications}
                 </button>
                 <button class="btn-no" id="skipNotificationsBtn">
-                    ❌ ليس الآن
+                    ${trans.skipNotifications}
                 </button>
             </div>
         </div>
@@ -241,9 +374,10 @@ function showNotificationPrompt() {
 function calculateAge() {
     const calendarType = document.getElementById('calendarType').value;
     const birthDateInput = document.getElementById('birthDate').value;
+    const trans = translations[currentLanguage];
     
     if (!birthDateInput) {
-        alert('الرجاء إدخال تاريخ الميلاد');
+        alert(trans.errorBirthDate);
         return;
     }
     
@@ -261,7 +395,7 @@ function calculateAge() {
     let diffMs = currentDate.getTime() - birthDate.getTime();
     
     if (diffMs < 0) {
-        alert('تاريخ الميلاد لا يمكن أن يكون في المستقبل!');
+        alert(trans.errorFutureDate);
         return;
     }
     
@@ -299,9 +433,13 @@ function calculateAge() {
     document.getElementById('ageHours').textContent = ageHours;
     document.getElementById('ageMinutes').textContent = ageMinutes;
     
-    const nextBirthdayText = calendarType === 'hijri' ? 
-        'باقي ' + daysUntilNextBirthday + ' يوم' : 
-        nextBirthday.toLocaleDateString('ar-SA') + ' (باقي ' + daysUntilNextBirthday + ' يوم)';
+    let nextBirthdayText;
+    if (calendarType === 'hijri') {
+        nextBirthdayText = trans.nextBirthdayDays(daysUntilNextBirthday);
+    } else {
+        const locale = currentLanguage === 'ar' ? 'ar-SA' : 'en-US';
+        nextBirthdayText = nextBirthday.toLocaleDateString(locale) + ' (' + trans.nextBirthdayDays(daysUntilNextBirthday) + ')';
+    }
     
     document.getElementById('nextBirthday').textContent = nextBirthdayText;
     
@@ -332,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('birthDate').value = defaultDate;
     
     // ربط زر الحساب بالدالة
-    const calculateButton = document.querySelector('button');
+    const calculateButton = document.querySelector('button[onclick]');
     if (calculateButton) {
         calculateButton.onclick = function(e) {
             e.preventDefault();
@@ -348,12 +486,12 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    console.log('✅ التطبيق جاهز للعمل');
+    console.log(translations[currentLanguage].appReady);
 });
 
 // مراقبة خروج المستخدم من التطبيق
 document.addEventListener('visibilitychange', function() {
     if (document.hidden && notificationSystem.notificationsEnabled) {
-        console.log('المستخدم خارج التطبيق - الإشعارات نشطة');
+        console.log('User left the app - Notifications are active');
     }
 });
