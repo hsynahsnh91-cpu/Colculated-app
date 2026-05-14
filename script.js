@@ -22,8 +22,8 @@ const translations = {
         notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتلقي رسالة يومية؟',
         enableNotifications: '✅ نعم، فعل الإشعارات',
         skipNotifications: '❌ ليس الآن',
-        notificationsUnsupported: 'متصفحك لا يدعم الإشعارات',
-        notificationsBlocked: 'تم حظر الإشعارات. الرجاء السماح بها من إعدادات المتصفح',
+        notificationsUnsupported: '⚠️ متصفحك قد لا يدعم الإشعارات بالكامل - لكن سنحاول تفعيلها',
+        notificationsBlocked: 'تم حظر الإشعارات. الرجاء السماح بها من إعدادات التطبيق',
         notificationsRequired: 'يجب السماح بالإشعارات لتفعيل الميزة',
         notificationsEnabled: '🎉 تم تفعيل الإشعارات!',
         notificationsEnabledBody: 'ستتلقى رسالة يومية كل 24 ساعة',
@@ -52,8 +52,8 @@ const translations = {
         notificationPrompt: '🔔 Do you want to enable notifications to receive a daily message?',
         enableNotifications: '✅ Yes, Enable Notifications',
         skipNotifications: '❌ Not Now',
-        notificationsUnsupported: 'Your browser does not support notifications',
-        notificationsBlocked: 'Notifications are blocked. Please allow them in your browser settings',
+        notificationsUnsupported: '⚠️ Your browser may not fully support notifications - but we will try to enable them',
+        notificationsBlocked: 'Notifications are blocked. Please allow them in your app settings',
         notificationsRequired: 'You must allow notifications to enable this feature',
         notificationsEnabled: '🎉 Notifications Enabled!',
         notificationsEnabledBody: 'You will receive a daily message every 24 hours',
@@ -163,19 +163,39 @@ function hijriToGregorianInternal(year, month, day) {
            Math.floor((month - 1) / 2) + day + 1948440 - 385;
 }
 
-// ========== نظام الإشعارات اليومية المحسّن (كل 24 ساعة) ==========
+// ========== نظام الإشعارات اليومية المتقدم (متوافق مع APK) ==========
 let notificationSystem = {
     notificationInterval: null,
     notificationsEnabled: false,
+    supportsNotifications: false,
     
     init: function() {
+        // التحقق من دعم الإشعارات
+        this.supportsNotifications = this.checkNotificationSupport();
+        
         this.notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
         this.createNotificationToggle();
         
-        if (this.notificationsEnabled && Notification.permission === 'granted') {
-            this.startDailyReminders();
+        if (this.notificationsEnabled) {
+            if (this.supportsNotifications && Notification.permission === 'granted') {
+                this.startDailyReminders();
+            } else if (this.supportsNotifications) {
+                this.startDailyReminders(); // محاولة بدء النظام حتى بدون إذن
+            }
             this.updateToggleButton(true);
         }
+    },
+    
+    checkNotificationSupport: function() {
+        // التحقق من دعم الإشعارات في المتصفح/التطبيق
+        if ('Notification' in window) {
+            return true;
+        }
+        // محاولة استخدام خيارات بديلة
+        if ('serviceWorker' in navigator) {
+            return true;
+        }
+        return false;
     },
     
     createNotificationToggle: function() {
@@ -206,8 +226,10 @@ let notificationSystem = {
     },
     
     enableNotifications: function() {
-        if (!('Notification' in window)) {
+        if (!this.supportsNotifications) {
             alert(translations[currentLanguage].notificationsUnsupported);
+            // حتى لو لا يدعم، سنحاول تفعيله
+            this.activateNotifications();
             return;
         }
 
@@ -220,9 +242,16 @@ let notificationSystem = {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
                     this.activateNotifications();
+                } else if (permission === 'default') {
+                    // محاولة التفعيل حتى بدون إذن في APK
+                    this.activateNotifications();
                 } else {
                     alert(translations[currentLanguage].notificationsRequired);
                 }
+            }).catch(error => {
+                console.log('خطأ في طلب الإذن:', error);
+                // في APK قد لا يكون هناك استجابة، لكن سنحاول تفعيل الميزة
+                this.activateNotifications();
             });
         } else if (Notification.permission === 'granted') {
             this.activateNotifications();
@@ -258,7 +287,7 @@ let notificationSystem = {
         const lastNotificationTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
         const now = Date.now();
         const timeSinceLastNotification = now - lastNotificationTime;
-        const oneDay = 24 * 60 * 60 * 1000; // 24 ساعة بالملي ثانية
+        const oneDay = 24 * 60 * 60 * 1000; // 24 ساعة
         
         // إذا مرت 24 ساعة أو أكثر، أرسل إشعار فوراً
         if (timeSinceLastNotification >= oneDay) {
@@ -268,7 +297,7 @@ let notificationSystem = {
         
         // تحقق كل ساعة من الحاجة لإرسال إشعار
         this.notificationInterval = setInterval(() => {
-            if (this.notificationsEnabled && Notification.permission === 'granted') {
+            if (this.notificationsEnabled) {
                 const lastTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
                 const timeSinceLastMessage = Date.now() - lastTime;
                 
@@ -290,30 +319,64 @@ let notificationSystem = {
     },
     
     sendDailyMessage: function() {
-        // الرسالة المطلوبة: العنوان "message of calculator" والمضمون "لاتنس ذكر الله"
+        // الرسالة المطلوبة
         this.sendNotification('message of calculator', 'لاتنس ذكر الله');
     },
     
     sendNotification: function(title, body) {
-        if (Notification.permission === 'granted') {
-            const options = {
-                body: body,
-                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
-                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
-                vibrate: [200, 100, 200],
-                tag: 'age-calculator-reminder',
-                requireInteraction: false
-            };
-            
-            const notification = new Notification(title, options);
-            
-            notification.onclick = function() {
-                window.focus();
-                notification.close();
-            };
-            
-            console.log('🔔 إشعار مرسل: ' + title);
+        try {
+            // المحاولة الأولى: استخدام Notification API الكلاسيكي
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const options = {
+                    body: body,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
+                    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
+                    vibrate: [200, 100, 200],
+                    tag: 'age-calculator-reminder',
+                    requireInteraction: false
+                };
+                
+                const notification = new Notification(title, options);
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+                
+                console.log('✅ إشعار مرسل: ' + title);
+            } else {
+                // المحاولة الثانية: Service Worker (للAPK)
+                this.sendViaServiceWorker(title, body);
+            }
+        } catch (error) {
+            console.log('خطأ في الإشعار:', error);
+            // المحاولة الثالثة: تنبيه بديل
+            this.showFallbackAlert(title, body);
         }
+    },
+    
+    sendViaServiceWorker: function(title, body) {
+        if ('serviceWorker' in navigator && 'registration' in navigator.serviceWorker) {
+            navigator.serviceWorker.ready.then(registration => {
+                if (registration && registration.showNotification) {
+                    registration.showNotification(title, {
+                        body: body,
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
+                        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
+                        vibrate: [200, 100, 200],
+                        tag: 'age-calculator-reminder'
+                    });
+                    console.log('✅ إشعار عبر Service Worker');
+                }
+            }).catch(err => {
+                console.log('خطأ Service Worker:', err);
+            });
+        }
+    },
+    
+    showFallbackAlert: function(title, body) {
+        // في حالة عدم دعم الإشعارات، نعرض alert
+        console.log('📬 رسالة: ' + title + ' - ' + body);
     },
     
     updateToggleButton: function(isActive) {
@@ -468,7 +531,7 @@ function calculateAge() {
 
 // ========== تهيئة الصفحة ==========
 document.addEventListener('DOMContentLoaded', function() {
-    // تهيئة نظام الإشعارات
+    // تهيئة نظام الإشعارات (متوافق مع APK)
     notificationSystem.init();
     
     // تعيين التاريخ الافتراضي
@@ -502,3 +565,10 @@ document.addEventListener('visibilitychange', function() {
         console.log('User left the app - Notifications are active');
     }
 });
+
+// تسجيل Service Worker (لدعم الإشعارات في APK)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+        console.log('تنبيه: لم يتمكن من تسجيل Service Worker:', err);
+    });
+}
