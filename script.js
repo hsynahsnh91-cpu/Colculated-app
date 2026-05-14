@@ -39,69 +39,335 @@ function getCurrentHijriDate() {
 }
 
 // ========== نظام الإشعارات المتكامل ==========
-class NotificationSystem {
-    constructor() {
-        this.notificationInterval = null;
-        this.notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-        this.init();
-    }
+let notificationSystem;
 
-    init() {
-        // إنشاء زر التحكم بالإشعارات
-        this.createNotificationToggle();
+function createNotificationSystem() {
+    const system = {
+        notificationInterval: null,
+        notificationsEnabled: localStorage.getItem('notificationsEnabled') === 'true',
         
-        // استعادة حالة الإشعارات السابقة
-        if (this.notificationsEnabled && Notification.permission === 'granted') {
-            this.startReminders();
-            this.updateToggleButton(true);
-        }
-    }
-
-    createNotificationToggle() {
-        const toggle = document.createElement('div');
-        toggle.className = 'notification-toggle';
-        toggle.id = 'notificationToggle';
-        toggle.innerHTML = `
-            🔔 <span>الإشعارات</span>
-            <span class="notification-badge" id="notificationStatus">${this.notificationsEnabled ? 'ON' : 'OFF'}</span>
-        `;
-        
-        toggle.addEventListener('click', () => {
-            if (this.notificationsEnabled) {
-                this.disableNotifications();
-            } else {
-                this.enableNotifications();
+        init: function() {
+            this.createNotificationToggle();
+            
+            if (this.notificationsEnabled && Notification.permission === 'granted') {
+                this.startReminders();
+                this.updateToggleButton(true);
             }
-        });
+        },
         
-        document.body.appendChild(toggle);
-    }
-
-    async enableNotifications() {
-        if (!('Notification' in window)) {
-            alert('متصفحك لا يدعم الإشعارات');
-            return;
-        }
-
-        if (Notification.permission === 'denied') {
-            alert('تم حظر الإشعارات. الرجاء السماح بها من إعدادات المتصفح');
-            return;
-        }
-
-        if (Notification.permission === 'default') {
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                alert('يجب السماح بالإشعارات لتفعيل الميزة');
+        createNotificationToggle: function() {
+            // إزالة الزر القديم إذا وجد
+            const oldToggle = document.getElementById('notificationToggle');
+            if (oldToggle) {
+                oldToggle.remove();
+            }
+            
+            const toggle = document.createElement('div');
+            toggle.className = 'notification-toggle';
+            toggle.id = 'notificationToggle';
+            toggle.innerHTML = '🔔 <span>الإشعارات</span> <span class="notification-badge" id="notificationStatus">' + (this.notificationsEnabled ? 'ON' : 'OFF') + '</span>';
+            
+            toggle.onclick = () => {
+                if (this.notificationsEnabled) {
+                    this.disableNotifications();
+                } else {
+                    this.enableNotifications();
+                }
+            };
+            
+            document.body.appendChild(toggle);
+            
+            if (this.notificationsEnabled) {
+                toggle.classList.add('notification-active');
+            }
+        },
+        
+        enableNotifications: function() {
+            if (!('Notification' in window)) {
+                alert('متصفحك لا يدعم الإشعارات');
                 return;
             }
-        }
 
-        this.notificationsEnabled = true;
-        localStorage.setItem('notificationsEnabled', 'true');
-        this.startReminders();
-        this.updateToggleButton(true);
+            if (Notification.permission === 'denied') {
+                alert('تم حظر الإشعارات. الرجاء السماح بها من إعدادات المتصفح');
+                return;
+            }
+
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        this.activateNotifications();
+                    } else {
+                        alert('يجب السماح بالإشعارات لتفعيل الميزة');
+                    }
+                });
+            } else if (Notification.permission === 'granted') {
+                this.activateNotifications();
+            }
+        },
         
-        // إرسال إشعار ترحيبي
+        activateNotifications: function() {
+            this.notificationsEnabled = true;
+            localStorage.setItem('notificationsEnabled', 'true');
+            this.startReminders();
+            this.updateToggleButton(true);
+            
+            this.sendNotification(
+                '🎉 تم تفعيل الإشعارات!',
+                'سنذكرك بتحديث عمرك بشكل دوري'
+            );
+        },
+        
+        disableNotifications: function() {
+            this.notificationsEnabled = false;
+            localStorage.setItem('notificationsEnabled', 'false');
+            this.stopReminders();
+            this.updateToggleButton(false);
+            
+            alert('تم إيقاف الإشعارات');
+        },
+        
+        startReminders: function() {
+            this.stopReminders();
+            
+            // إرسال إشعار تجريبي بعد 30 ثانية
+            setTimeout(() => {
+                if (document.hidden && this.notificationsEnabled) {
+                    this.sendAgeReminder();
+                }
+            }, 30000);
+            
+            // إرسال إشعار كل ساعة
+            this.notificationInterval = setInterval(() => {
+                if (document.hidden && this.notificationsEnabled) {
+                    this.sendAgeReminder();
+                }
+            }, 60 * 60 * 1000);
+        },
+        
+        stopReminders: function() {
+            if (this.notificationInterval) {
+                clearInterval(this.notificationInterval);
+                this.notificationInterval = null;
+            }
+        },
+        
+        sendAgeReminder: function() {
+            const birthDate = localStorage.getItem('birthDate');
+            
+            if (birthDate) {
+                this.sendNotification(
+                    '🎂 تذكير من حاسبة العمر',
+                    'هل تغير عمرك؟ افتح التطبيق لتحديث عمرك!'
+                );
+            }
+        },
+        
+        sendNotification: function(title, body) {
+            if (Notification.permission === 'granted') {
+                const options = {
+                    body: body,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
+                    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
+                    vibrate: [200, 100, 200],
+                    tag: 'age-calculator-reminder',
+                    requireInteraction: false,
+                    silent: false
+                };
+                
+                const notification = new Notification(title, options);
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        },
+        
+        updateToggleButton: function(isActive) {
+            const toggle = document.getElementById('notificationToggle');
+            const statusBadge = document.getElementById('notificationStatus');
+            
+            if (toggle && statusBadge) {
+                if (isActive) {
+                    toggle.classList.add('notification-active');
+                    statusBadge.textContent = 'ON';
+                    statusBadge.style.background = '#4CAF50';
+                } else {
+                    toggle.classList.remove('notification-active');
+                    statusBadge.textContent = 'OFF';
+                    statusBadge.style.background = '#f44336';
+                }
+            }
+        }
+    };
+    
+    return system;
+}
+
+// ========== نظام نافذة طلب الإشعارات ==========
+function showNotificationPrompt() {
+    // التحقق إذا كان قد تم الرفض سابقاً
+    if (localStorage.getItem('notificationPromptShown') === 'true') {
+        return;
+    }
+    
+    // إزالة النافذة القديمة إذا وجدت
+    const oldPrompt = document.getElementById('notificationPrompt');
+    if (oldPrompt) {
+        oldPrompt.remove();
+    }
+
+    const prompt = document.createElement('div');
+    prompt.className = 'notification-prompt';
+    prompt.id = 'notificationPrompt';
+    prompt.innerHTML = `
+        <div class="prompt-content">
+            <p>🔔 هل تريد تفعيل الإشعارات لتذكيرك بتحديث عمرك عندما تخرج من التطبيق؟</p>
+            <div class="prompt-buttons">
+                <button class="btn-yes" id="enableNotificationsBtn">
+                    ✅ نعم، فعل الإشعارات
+                </button>
+                <button class="btn-no" id="skipNotificationsBtn">
+                    ❌ ليس الآن
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(prompt);
+    
+    // معالجة الأحداث - استخدام onclick مباشرة لضمان العمل
+    document.getElementById('enableNotificationsBtn').onclick = function() {
+        notificationSystem.enableNotifications();
+        prompt.remove();
+        localStorage.setItem('notificationPromptShown', 'true');
+    };
+    
+    document.getElementById('skipNotificationsBtn').onclick = function() {
+        prompt.remove();
+        localStorage.setItem('notificationPromptShown', 'true');
+    };
+}
+
+// دالة حساب العمر الرئيسية
+function calculateAge() {
+    const calendarType = document.getElementById('calendarType').value;
+    const birthDateInput = document.getElementById('birthDate').value;
+    
+    if (!birthDateInput) {
+        alert('الرجاء إدخال تاريخ الميلاد');
+        return;
+    }
+    
+    let birthDate;
+    let currentDate;
+    
+    if (calendarType === 'hijri') {
+        birthDate = hijriToGregorian(birthDateInput);
+        currentDate = new Date();
+    } else {
+        birthDate = new Date(birthDateInput);
+        currentDate = new Date();
+    }
+    
+    let diffMs = currentDate.getTime() - birthDate.getTime();
+    
+    if (diffMs < 0) {
+        alert('تاريخ الميلاد لا يمكن أن يكون في المستقبل!');
+        return;
+    }
+    
+    let ageYears = currentDate.getFullYear() - birthDate.getFullYear();
+    const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
+        ageYears--;
+    }
+    
+    let lastBirthday = new Date(birthDate);
+    lastBirthday.setFullYear(currentDate.getFullYear());
+    
+    if (lastBirthday > currentDate) {
+        lastBirthday.setFullYear(currentDate.getFullYear() - 1);
+    }
+    
+    const diffFromLastBirthday = currentDate.getTime() - lastBirthday.getTime();
+    
+    const ageDays = Math.floor(diffFromLastBirthday / (1000 * 60 * 60 * 24));
+    const ageHours = Math.floor((diffFromLastBirthday % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const ageMinutes = Math.floor((diffFromLastBirthday % (1000 * 60 * 60)) / (1000 * 60));
+    
+    let nextBirthday = new Date(birthDate);
+    nextBirthday.setFullYear(currentDate.getFullYear());
+    
+    if (nextBirthday <= currentDate) {
+        nextBirthday.setFullYear(currentDate.getFullYear() + 1);
+    }
+    
+    const daysUntilNextBirthday = Math.ceil((nextBirthday.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    document.getElementById('ageYears').textContent = ageYears;
+    document.getElementById('ageDays').textContent = ageDays;
+    document.getElementById('ageHours').textContent = ageHours;
+    document.getElementById('ageMinutes').textContent = ageMinutes;
+    
+    const nextBirthdayText = calendarType === 'hijri' ? 
+        'باقي ' + daysUntilNextBirthday + ' يوم' : 
+        nextBirthday.toLocaleDateString('ar-SA') + ' (باقي ' + daysUntilNextBirthday + ' يوم)';
+    
+    document.getElementById('nextBirthday').textContent = nextBirthdayText;
+    
+    const resultContainer = document.getElementById('result');
+    resultContainer.style.display = 'block';
+    resultContainer.scrollIntoView({ behavior: 'smooth' });
+    
+    // حفظ البيانات للإشعارات
+    localStorage.setItem('birthDate', birthDateInput);
+    localStorage.setItem('calendarType', calendarType);
+    
+    // إظهار نافذة طلب الإشعارات بعد 2 ثانية
+    setTimeout(() => {
+        if (!notificationSystem.notificationsEnabled) {
+            showNotificationPrompt();
+        }
+    }, 2000);
+}
+
+// مراقبة خروج المستخدم من التطبيق
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && notificationSystem && notificationSystem.notificationsEnabled) {
+        console.log('المستخدم خارج التطبيق - الإشعارات نشطة');
+    } else if (!document.hidden) {
+        console.log('المستخدم عاد للتطبيق');
+    }
+});
+
+// تهيئة كل شيء عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    // تهيئة نظام الإشعارات
+    notificationSystem = createNotificationSystem();
+    notificationSystem.init();
+    
+    // تعيين التاريخ الافتراضي
+    const today = new Date();
+    const defaultDate = today.toISOString().split('T')[0];
+    document.getElementById('birthDate').value = defaultDate;
+    
+    // إضافة حدث لتغيير نوع التقويم
+    document.getElementById('calendarType').addEventListener('change', function() {
+        const resultContainer = document.getElementById('result');
+        resultContainer.style.display = 'none';
+    });
+    
+    // التأكد من أن زر الحساب يعمل
+    const calculateButton = document.querySelector('button');
+    if (calculateButton && calculateButton.textContent.includes('احسب العمر')) {
+        calculateButton.onclick = calculateAge;
+    }
+    
+    console.log('التطبيق جاهز ونظام الإشعارات مهيأ');
+});        // إرسال إشعار ترحيبي
         this.sendNotification(
             '🎉 تم تفعيل الإشعارات!',
             'سنذكرك بتحديث عمرك بشكل دوري'
