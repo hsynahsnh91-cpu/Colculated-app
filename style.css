@@ -4,183 +4,232 @@
     box-sizing: border-box;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Arial';
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     transition: background 0.3s ease;
-    padding-top: 70px;
-    padding-bottom: 60px;
 }
 
-/* الشريط العلوي الثابت */
-.header {
+/* ========== شريط العنوان الثابت ========== */
+.top-bar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 70px;
-    background: white;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
-    z-index: 999;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-height: 60px;
 }
 
 .menu-btn {
-    background: none;
+    background: white;
     border: none;
-    font-size: 28px;
-    cursor: pointer;
-    color: #333;
-    padding: 8px;
-    transition: all 0.3s;
     border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-btn span {
+    width: 24px;
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+    transition: all 0.3s ease;
 }
 
 .menu-btn:hover {
-    background: #f0f0f0;
-    transform: scale(1.1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .app-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #667eea;
+    color: white;
+    font-size: 1.5em;
     flex: 1;
     text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .header-controls {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
 }
 
-.language-toggle, .notification-btn {
-    background: #f5f5f5;
+/* ========== زر تبديل اللغة ========== */
+.language-toggle {
+    background: white;
     border: none;
+    border-radius: 50px;
     padding: 8px 12px;
-    border-radius: 25px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    font-weight: 600;
     color: #333;
-    transition: all 0.3s;
-    font-weight: 500;
+    font-family: inherit;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
-.language-toggle:hover, .notification-btn:hover {
-    background: #e0e0e0;
-    transform: scale(1.05);
+.language-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.language-toggle:active {
+    transform: scale(0.98);
 }
 
 .language-icon {
-    font-size: 18px;
-    transition: transform 0.3s;
+    font-size: 16px;
+    display: inline-block;
+    transition: transform 0.3s ease;
 }
 
 .language-toggle:hover .language-icon {
-    transform: rotate(180deg);
+    transform: rotateY(180deg);
+}
+
+/* ========== أيقونة الإشعارات ========== */
+.notification-toggle {
+    background: white;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    font-size: 13px;
+    color: #333;
+    font-family: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.notification-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.notification-toggle span:not(.notification-badge) {
+    display: none;
 }
 
 .notification-badge {
     background: #764ba2;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    min-width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
-/* القائمة الجانبية */
+.notification-active {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(118, 75, 162, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(118, 75, 162, 0);
+    }
+}
+
+/* ========== القائمة الجانبية ========== */
 .sidebar {
     position: fixed;
-    top: 0;
+    top: 60px;
     right: -300px;
-    width: 300px;
-    height: 100vh;
+    width: 280px;
+    height: calc(100vh - 100px);
     background: white;
-    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    z-index: 998;
+    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.2);
     transition: right 0.3s ease;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 body[dir="ltr"] .sidebar {
     right: auto;
     left: -300px;
-    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.2);
 }
 
-.sidebar.active {
+.sidebar.open {
     right: 0;
 }
 
-body[dir="ltr"] .sidebar.active {
+body[dir="ltr"] .sidebar.open {
     left: 0;
 }
 
 .sidebar-header {
     padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    border-bottom: 2px solid #f0f0f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .sidebar-header h2 {
-    font-size: 20px;
-    margin: 0;
+    color: #333;
+    font-size: 1.3em;
 }
 
 .close-sidebar {
-    background: rgba(255, 255, 255, 0.2);
+    background: none;
     border: none;
-    color: white;
     font-size: 24px;
     cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.3s;
+    color: #666;
+    transition: color 0.3s ease;
 }
 
 .close-sidebar:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
+    color: #333;
 }
 
 .sidebar-nav {
     flex: 1;
-    padding: 20px 0;
+    padding: 10px 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
 .nav-btn {
@@ -191,88 +240,89 @@ body[dir="ltr"] .sidebar.active {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 15px;
-    font-size: 16px;
-    color: #333;
-    transition: all 0.3s;
-    border-right: 4px solid transparent;
+    gap: 12px;
+    color: #555;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-right: 3px solid transparent;
+    font-family: inherit;
+}
+
+body[dir="ltr"] .nav-btn {
+    text-align: left;
+    border-right: none;
+    border-left: 3px solid transparent;
 }
 
 .nav-btn:hover {
     background: #f5f5f5;
-    border-right-color: #667eea;
+    color: #667eea;
 }
 
 .nav-btn.active {
-    background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
-    border-right-color: #667eea;
+    background: #f0f0f0;
     color: #667eea;
-    font-weight: bold;
+    border-right-color: #667eea;
+}
+
+body[dir="ltr"] .nav-btn.active {
+    border-left-color: #667eea;
 }
 
 .nav-btn .icon {
-    font-size: 24px;
-    min-width: 30px;
-}
-
-.nav-btn .text {
-    flex: 1;
+    font-size: 22px;
 }
 
 .sidebar-footer {
     padding: 20px;
-    background: #f5f5f5;
+    border-top: 2px solid #f0f0f0;
+    background: #f9f9f9;
     text-align: center;
     color: #666;
-    font-size: 14px;
-    border-top: 1px solid #e0e0e0;
-}
-
-.sidebar-footer strong {
-    color: #667eea;
-    display: block;
-    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.6;
 }
 
 .sidebar-overlay {
     position: fixed;
-    top: 0;
+    top: 60px;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    background: rgba(0, 0, 0, 0);
+    z-index: 997;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transition: background 0.3s ease, opacity 0.3s ease;
 }
 
-.sidebar-overlay.active {
+.sidebar-overlay.open {
+    background: rgba(0, 0, 0, 0.5);
     opacity: 1;
-    pointer-events: all;
+    pointer-events: auto;
 }
 
-/* المحتوى الرئيسي */
+/* ========== المحتوى الرئيسي ========== */
 .main-content {
     flex: 1;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    padding: 20px;
+    overflow-y: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 20px;
-    min-height: calc(100vh - 130px);
 }
 
 .app-section {
     width: 100%;
+    animation: fadeIn 0.5s ease-in;
     display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    animation: fadeIn 0.3s ease;
 }
 
 .app-section.active {
     display: block;
-    opacity: 1;
 }
 
 @keyframes fadeIn {
@@ -292,6 +342,7 @@ body[dir="ltr"] .sidebar.active {
     margin: 0 auto;
 }
 
+/* ========== البطاقة الرئيسية ========== */
 .calculator-card {
     background: white;
     border-radius: 20px;
@@ -304,55 +355,58 @@ body[dir="ltr"] .sidebar.active {
 .calculator-card h2 {
     color: #333;
     margin-bottom: 10px;
-    font-size: 2em;
-    transition: color 0.3s ease;
+    font-size: 1.8em;
 }
 
-.calculator-card .subtitle {
+.subtitle {
     color: #666;
-    margin-bottom: 30px;
-    transition: color 0.3s ease;
+    margin-bottom: 25px;
+    font-size: 14px;
 }
 
+/* ========== نماذج الإدخال ========== */
 .form-group {
     margin-bottom: 20px;
     text-align: right;
 }
 
-.form-group label {
+label {
     display: block;
     margin-bottom: 8px;
     color: #555;
     font-weight: 600;
-    transition: color 0.3s ease;
+    font-size: 14px;
 }
 
-.form-control, select, input {
+select, input[type="date"], input[type="text"] {
     width: 100%;
     padding: 12px;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
-    font-size: 16px;
-    transition: all 0.3s;
+    font-size: 15px;
+    transition: border-color 0.3s, background-color 0.3s;
     font-family: inherit;
+    background: white;
+    color: #333;
 }
 
-.form-control:focus, select:focus, input:focus {
+select:focus, input:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* ========== الأزرار ========== */
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    padding: 15px 40px;
+    padding: 14px 40px;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
     margin-top: 10px;
     font-family: inherit;
     width: 100%;
@@ -367,6 +421,7 @@ body[dir="ltr"] .sidebar.active {
     transform: translateY(0);
 }
 
+/* ========== نتائج العمر ========== */
 .result-container {
     margin-top: 30px;
     animation: fadeIn 0.5s ease-in;
@@ -380,11 +435,14 @@ body[dir="ltr"] .sidebar.active {
 }
 
 .age-main {
-    font-size: 2.5em;
+    font-size: 2.8em;
     font-weight: bold;
     color: #764ba2;
     margin-bottom: 20px;
-    transition: color 0.3s ease;
+}
+
+.age-main span {
+    font-size: 0.6em;
 }
 
 .age-details {
@@ -409,49 +467,42 @@ body[dir="ltr"] .sidebar.active {
 
 .detail-item small {
     color: #666;
-    font-size: 0.9em;
-    transition: color 0.3s ease;
+    font-size: 0.85em;
 }
 
 .next-birthday {
     margin-top: 15px;
     color: #555;
-    transition: color 0.3s ease;
+}
+
+.next-birthday p {
+    margin-bottom: 8px;
+    font-size: 14px;
 }
 
 .next-birthday span {
     display: block;
     font-weight: bold;
     color: #764ba2;
-    margin-top: 5px;
-    transition: color 0.3s ease;
+    font-size: 1.2em;
 }
 
-/* الآلة الحاسبة */
+/* ========== الآلة الحاسبة ========== */
 .calc-display {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    font-size: 2.5em;
     padding: 20px;
     border-radius: 10px;
-    margin-bottom: 20px;
-    text-align: right;
+    font-size: 2em;
     font-weight: bold;
-    word-break: break-all;
+    text-align: right;
+    margin-bottom: 20px;
     min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-}
-
-.calc-input {
-    width: 100%;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2.5em;
-    text-align: right;
-    padding: 0;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
 .calc-buttons {
@@ -462,92 +513,77 @@ body[dir="ltr"] .sidebar.active {
 }
 
 .calc-btn {
-    padding: 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
     background: #f0f0f0;
-    color: #333;
-    transition: all 0.3s;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
     font-family: inherit;
+    color: #333;
 }
 
 .calc-btn:hover {
-    background: #e0e0e0;
+    background: #e8e8e8;
+    border-color: #667eea;
     transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .calc-btn:active {
     transform: translateY(0);
 }
 
-.calc-operator {
-    background: #667eea;
-    color: white;
-}
-
-.calc-operator:hover {
-    background: #764ba2;
-}
-
-.calc-clear, .calc-delete {
-    background: #ff6b6b;
-    color: white;
-}
-
-.calc-clear:hover, .calc-delete:hover {
-    background: #ff5252;
-}
-
-.calc-equal {
+.calc-btn.calc-operator {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    border: none;
+}
+
+.calc-btn.calc-equal {
+    background: linear-gradient(135deg, #00d084 0%, #00a86b 100%);
+    color: white;
+    border: none;
     grid-column: span 2;
 }
 
-.calc-equal:hover {
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+.calc-btn.calc-clear,
+.calc-btn.calc-delete {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+    border: none;
 }
 
-.calc-zero {
+.calc-btn.calc-zero {
     grid-column: span 2;
 }
 
-/* التذييل الثابت */
+/* ========== التذييل الثابت ========== */
 .footer {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
-    border-top: 1px solid #e0e0e0;
-    padding: 15px 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    color: white;
     text-align: center;
-    font-size: 14px;
-    color: #666;
-    z-index: 998;
-    animation: slideUp 0.3s ease;
+    padding: 12px 20px;
+    font-size: 13px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 999;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+.footer p {
+    margin: 0;
 }
 
 .footer strong {
-    color: #667eea;
+    color: #ffd700;
 }
 
-/* نافذة الإشعارات */
+/* ========== الإشعارات ========== */
 .notification-prompt {
     position: fixed;
     bottom: 80px;
@@ -557,18 +593,31 @@ body[dir="ltr"] .sidebar.active {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    z-index: 1001;
+    z-index: 1000;
     animation: slideUp 0.5s ease-out;
     max-width: 90%;
     width: 400px;
-    transition: all 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100px);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.prompt-content {
+    text-align: center;
 }
 
 .prompt-content p {
     margin-bottom: 15px;
-    font-size: 16px;
+    font-size: 15px;
     color: #333;
-    transition: color 0.3s ease;
 }
 
 .prompt-buttons {
@@ -584,7 +633,8 @@ body[dir="ltr"] .sidebar.active {
     font-size: 14px;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: transform 0.2s;
+    font-weight: 600;
 }
 
 .btn-yes {
@@ -601,31 +651,17 @@ body[dir="ltr"] .sidebar.active {
     transform: translateY(-2px);
 }
 
-/* الوضع الليلي */
+/* ========== الوضع الليلي ========== */
 @media (prefers-color-scheme: dark) {
     body {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     }
     
-    .header {
-        background: #1a1a2e;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-    }
-    
-    .menu-btn {
-        color: #e0e0e0;
-    }
-    
-    .menu-btn:hover {
-        background: #2a2a3e;
+    .top-bar, .footer {
+        background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(40, 30, 60, 0.95) 100%);
     }
     
     .app-title {
-        color: #667eea;
-    }
-    
-    .language-toggle, .notification-btn {
-        background: #2a2a3e;
         color: #e0e0e0;
     }
     
@@ -634,41 +670,72 @@ body[dir="ltr"] .sidebar.active {
         color: white;
     }
     
-    .calculator-card h2 {
+    .calculator-card h2, .subtitle {
         color: #e0e0e0;
     }
     
-    .form-group label {
+    label {
         color: #ccc;
     }
     
-    .form-control, select, input {
+    select, input {
         background: #2a2a3e;
         color: white;
         border-color: #3a3a4e;
     }
     
-    .footer {
+    .result-card {
+        background: linear-gradient(135deg, #2a2a3e 0%, #1a1a2e 100%);
+    }
+    
+    .calc-btn {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border-color: #3a3a4e;
+    }
+    
+    .calc-btn:hover {
+        background: #3a3a4e;
+    }
+    
+    .sidebar {
         background: #1a1a2e;
-        border-top-color: #3a3a4e;
+        color: #e0e0e0;
+    }
+    
+    .sidebar-header h2 {
+        color: #e0e0e0;
+    }
+    
+    .nav-btn {
         color: #aaa;
+    }
+    
+    .nav-btn:hover {
+        background: #2a2a3e;
+        color: #667eea;
     }
 }
 
-/* الشاشات الصغيرة */
+/* ========== الشاشات الصغيرة ========== */
 @media (max-width: 600px) {
-    body {
-        padding-top: 60px;
-        padding-bottom: 60px;
-    }
-    
-    .header {
-        height: 60px;
-        padding: 0 15px;
+    .top-bar {
+        padding: 10px 15px;
+        min-height: 55px;
     }
     
     .app-title {
-        font-size: 20px;
+        font-size: 1.2em;
+    }
+    
+    .language-toggle {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .notification-toggle {
+        padding: 6px 8px;
+        font-size: 12px;
     }
     
     .calculator-card {
@@ -676,20 +743,29 @@ body[dir="ltr"] .sidebar.active {
     }
     
     .calculator-card h2 {
-        font-size: 1.5em;
+        font-size: 1.4em;
+    }
+    
+    .main-content {
+        margin-top: 55px;
+        padding: 15px;
     }
     
     .age-main {
         font-size: 2em;
     }
     
-    .age-details {
-        flex-wrap: wrap;
-        gap: 10px;
+    .calc-buttons {
+        gap: 8px;
     }
     
-    .notification-prompt {
-        width: calc(100% - 40px);
-        max-width: none;
+    .calc-btn {
+        padding: 15px 8px;
+        font-size: 16px;
+    }
+    
+    .footer {
+        padding: 10px 15px;
+        font-size: 12px;
     }
 }
