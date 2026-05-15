@@ -1,551 +1,368 @@
-// ========== نظام اللغات ==========
+// CENTRAL SCRIPT: language, UI navigation, age calculator, calculator, notifications
 const translations = {
-    ar: {
-        pageTitle: '🎂 حاسبة العمر',
-        pageSubtitle: 'احسب عمرك بالميلادي والهجري بدقة',
-        calendarLabel: 'نوع التاريخ:',
-        gregorianOption: 'ميلادي',
-        hijriOption: 'هجري',
-        birthDateLabel: 'تاريخ الميلاد:',
-        calculateButton: 'احسب العمر 🕒',
-        yearText: 'سنة',
-        dayText: 'يوم',
-        hourText: 'ساعة',
-        minuteText: 'دقيقة',
-        nextBirthdayLabel: '🎈 عيد ميلادك القادم:',
-        nextBirthdayDays: (days) => `باقي ${days} يوم`,
-        notificationsLabel: 'الإشعارات',
-        notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتلقي رسالة يومية؟',
-        enableNotifications: '✅ نعم، فعل الإشعارات',
-        skipNotifications: '❌ ليس الآن',
-        notificationsUnsupported: '⚠️ متصفحك قد لا يدعم الإشعارات بالكامل - لكن سنحاول تفعيلها',
-        notificationsBlocked: 'تم حظر الإشعارات. الرجاء السماح بها من إعدادات التطبيق',
-        notificationsRequired: 'يجب السماح بالإشعارات لتفعيل الميزة',
-        notificationsEnabled: '🎉 تم تفعيل الإشعارات!',
-        notificationsEnabledBody: 'ستتلقى رسالة يومية كل 24 ساعة',
-        notificationsDisabled: 'تم إيقاف الإشعارات',
-        appReady: '✅ التطبيق جاهز للعمل'
-    },
-    en: {
-        pageTitle: '🎂 Age Calculator',
-        pageSubtitle: 'Calculate your age in Gregorian and Hijri calendar accurately',
-        calendarLabel: 'Calendar Type:',
-        gregorianOption: 'Gregorian',
-        hijriOption: 'Hijri',
-        birthDateLabel: 'Birth Date:',
-        calculateButton: 'Calculate Age 🕒',
-        yearText: 'year',
-        dayText: 'day',
-        hourText: 'hour',
-        minuteText: 'minute',
-        nextBirthdayLabel: '🎈 Your Next Birthday:',
-        nextBirthdayDays: (days) => `${days} days remaining`,
-        notificationsLabel: 'Notifications',
-        notificationPrompt: '🔔 Do you want to enable notifications to receive a daily message?',
-        enableNotifications: '✅ Yes, Enable Notifications',
-        skipNotifications: '❌ Not Now',
-        notificationsUnsupported: '⚠️ Your browser may not fully support notifications - but we will try to enable them',
-        notificationsBlocked: 'Notifications are blocked. Please allow them in your app settings',
-        notificationsRequired: 'You must allow notifications to enable this feature',
-        notificationsEnabled: '🎉 Notifications Enabled!',
-        notificationsEnabledBody: 'You will receive a daily message every 24 hours',
-        notificationsDisabled: 'Notifications Disabled',
-        appReady: '✅ App is ready to use'
-    }
+  ar: {
+    pageTitle: '🎂 حاسبة العمر',
+    pageSubtitle: 'احسب عمرك بالميلادي والهجري بدقة',
+    calendarLabel: 'نوع التاريخ:',
+    gregorianOption: 'ميلادي',
+    hijriOption: 'هجري',
+    birthDateLabel: 'تاريخ الميلاد:',
+    calculateButton: 'احسب العمر 🕒',
+    yearText: 'سنة',
+    dayText: 'يوم',
+    hourText: 'ساعة',
+    minuteText: 'دقيقة',
+    nextBirthdayLabel: '🎈 عيد ميلادك القادم:',
+    nextBirthdayDays: (days) => `باقي ${days} يوم`,
+    notificationsLabel: 'الإشعارات',
+    notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتلقي رسالة يومية؟',
+    enableNotifications: '✅ نعم، فعل الإشعارات',
+    skipNotifications: '❌ ليس الآن',
+    notificationsUnsupported: '⚠️ متصفحك قد لا يدعم الإشعارات بالكامل',
+    notificationsBlocked: 'تم حظر الإشعارات. الرجاء السماح بها من إعدادات التطبيق',
+    notificationsRequired: 'يجب السماح بالإشعارات لتفعيل الميزة',
+    notificationsEnabled: '🎉 تم تفعيل الإشعارات!',
+    notificationsEnabledBody: 'ستتلقى رسالة يومية كل 24 ساعة',
+    notificationsDisabled: 'تم إيقاف الإشعارات',
+    appReady: '✅ التطبيق جاهز للعمل',
+    errorBirthDate: 'الرجاء تحديد تاريخ الميلاد',
+    errorFutureDate: 'الرجاء اختيار تاريخ لا يزيد عن اليوم'
+  },
+  en: {
+    pageTitle: '🎂 Age Calculator',
+    pageSubtitle: 'Calculate your age in Gregorian and Hijri calendar accurately',
+    calendarLabel: 'Calendar Type:',
+    gregorianOption: 'Gregorian',
+    hijriOption: 'Hijri',
+    birthDateLabel: 'Birth Date:',
+    calculateButton: 'Calculate Age 🕒',
+    yearText: 'year',
+    dayText: 'day',
+    hourText: 'hour',
+    minuteText: 'minute',
+    nextBirthdayLabel: '🎈 Your Next Birthday:',
+    nextBirthdayDays: (days) => `${days} days remaining`,
+    notificationsLabel: 'Notifications',
+    notificationPrompt: '🔔 Do you want to enable notifications to receive a daily message?',
+    enableNotifications: '✅ Yes, Enable Notifications',
+    skipNotifications: '❌ Not Now',
+    notificationsUnsupported: '⚠️ Your browser may not fully support notifications',
+    notificationsBlocked: 'Notifications are blocked. Please allow them in your app settings',
+    notificationsRequired: 'You must allow notifications to enable this feature',
+    notificationsEnabled: '🎉 Notifications Enabled!',
+    notificationsEnabledBody: 'You will receive a daily message every 24 hours',
+    notificationsDisabled: 'Notifications Disabled',
+    appReady: '✅ App is ready to use',
+    errorBirthDate: 'Please select a birth date',
+    errorFutureDate: 'Please choose a date not in the future'
+  }
 };
 
 let currentLanguage = localStorage.getItem('language') || 'ar';
 
-// ========== نظام اللغات ==========
 function setLanguage(lang) {
-    currentLanguage = lang;
-    localStorage.setItem('language', lang);
-    
-    const htmlElement = document.getElementById('htmlRoot');
-    const html = document.querySelector('html');
-    if (lang === 'ar') {
-        htmlElement.lang = 'ar';
-        html.dir = 'rtl';
-    } else {
-        htmlElement.lang = 'en';
-        html.dir = 'ltr';
-    }
-    
-    const trans = translations[lang];
-    document.getElementById('pageTitle').textContent = trans.pageTitle;
-    document.getElementById('pageSubtitle').textContent = trans.pageSubtitle;
-    document.getElementById('calendarLabel').textContent = trans.calendarLabel;
-    document.getElementById('gregorianOption').textContent = trans.gregorianOption;
-    document.getElementById('hijriOption').textContent = trans.hijriOption;
-    document.getElementById('birthDateLabel').textContent = trans.birthDateLabel;
-    document.getElementById('calculateButton').textContent = trans.calculateButton;
-    document.getElementById('nextBirthdayLabel').textContent = trans.nextBirthdayLabel;
-    document.getElementById('yearText').textContent = trans.yearText;
-    document.getElementById('dayText').textContent = trans.dayText;
-    document.getElementById('hourText').textContent = trans.hourText;
-    document.getElementById('minuteText').textContent = trans.minuteText;
-    
-    updateResultText();
+  currentLanguage = lang;
+  localStorage.setItem('language', lang);
+
+  const htmlEl = document.getElementById('htmlRoot');
+  const html = document.documentElement;
+  if (lang === 'ar') {
+    htmlEl.lang = 'ar';
+    html.dir = 'rtl';
+  } else {
+    htmlEl.lang = 'en';
+    html.dir = 'ltr';
+  }
+
+  const t = translations[lang];
+  const pageTitle = document.getElementById('pageTitle');
+  if (pageTitle) pageTitle.textContent = t.pageTitle;
+  const pageSubtitle = document.getElementById('pageSubtitle');
+  if (pageSubtitle) pageSubtitle.textContent = t.pageSubtitle;
+  const calendarLabel = document.getElementById('calendarLabel');
+  if (calendarLabel) calendarLabel.textContent = t.calendarLabel;
+  const gregorianOption = document.getElementById('gregorianOption');
+  if (gregorianOption) gregorianOption.textContent = t.gregorianOption;
+  const hijriOption = document.getElementById('hijriOption');
+  if (hijriOption) hijriOption.textContent = t.hijriOption;
+  const birthDateLabel = document.getElementById('birthDateLabel');
+  if (birthDateLabel) birthDateLabel.textContent = t.birthDateLabel;
+  const calculateButton = document.getElementById('calculateButton');
+  if (calculateButton) calculateButton.textContent = t.calculateButton;
+  const nextBirthdayLabel = document.getElementById('nextBirthdayLabel');
+  if (nextBirthdayLabel) nextBirthdayLabel.textContent = t.nextBirthdayLabel;
+  const yearText = document.getElementById('yearText');
+  if (yearText) yearText.textContent = t.yearText;
+  const dayText = document.getElementById('dayText');
+  if (dayText) dayText.textContent = t.dayText;
+  const hourText = document.getElementById('hourText');
+  if (hourText) hourText.textContent = t.hourText;
+  const minuteText = document.getElementById('minuteText');
+  if (minuteText) minuteText.textContent = t.minuteText;
+
+  // language button text
+  const languageText = document.getElementById('languageText');
+  if (languageText) languageText.textContent = lang === 'ar' ? 'العربية' : 'English';
 }
 
-function updateResultText() {
-    const yearSpan = document.querySelector('.age-main span:last-child');
-    if (yearSpan) {
-        yearSpan.textContent = translations[currentLanguage].yearText;
-    }
-}
-
-// ========== إدارة القائمة الجانبية ==========
-document.addEventListener('DOMContentLoaded', function() {
-    const menuButton = document.getElementById('menuButton');
-    const closeSidebarBtn = document.getElementById('closeSidebar');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const navItems = document.querySelectorAll('.nav-item');
-    const languageToggle = document.getElementById('languageToggle');
-    
-    // فتح القائمة الجانبية
-    menuButton.addEventListener('click', () => {
-        sidebar.classList.add('active');
-        sidebarOverlay.classList.add('active');
-    });
-    
-    // إغلاق القائمة الجانبية
-    closeSidebarBtn.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-    });
-    
-    sidebarOverlay.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-    });
-    
-    // التنقل بين الصفحات
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const pageName = item.getAttribute('data-page');
-            switchPage(pageName);
-            
-            navItems.forEach(nav => nav.classList.remove('active'));
-            item.classList.add('active');
-            
-            sidebar.classList.remove('active');
-            sidebarOverlay.classList.remove('active');
-        });
-    });
-    
-    // تبديل اللغة
-    languageToggle.addEventListener('click', () => {
-        const newLang = currentLanguage === 'ar' ? 'en' : 'ar';
-        setLanguage(newLang);
-    });
-    
-    // تهيئة نظام الإشعارات
-    notificationSystem.init();
-    
-    // تعيين التاريخ الافتراضي
-    const today = new Date();
-    const defaultDate = today.toISOString().split('T')[0];
-    document.getElementById('birthDate').value = defaultDate;
-    
-    // تعيين اللغة الأولية
-    setLanguage(currentLanguage);
-    
-    console.log(translations[currentLanguage].appReady);
-});
-
-// ========== التنقل بين الصفحات ==========
-function switchPage(pageName) {
-    const pages = document.querySelectorAll('.page-content');
-    pages.forEach(page => page.style.display = 'none');
-    
-    const targetPage = document.getElementById(pageName + '-page');
-    if (targetPage) {
-        targetPage.style.display = 'block';
-        targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
-// ========== تحويل التاريخ الهجري إلى ميلادي ==========
+// Hijri/Gregorian helpers (lightweight approx)
 function hijriToGregorian(hijriDate) {
-    const hijriParts = hijriDate.split('-');
-    const hijriYear = parseInt(hijriParts[0]);
-    const hijriMonth = parseInt(hijriParts[1]) - 1;
-    const hijriDay = parseInt(hijriParts[2]);
-    
-    const jd = Math.floor((11 * hijriYear + 3) / 30) + 
-               354 * hijriYear + 30 * hijriMonth - 
-               Math.floor((hijriMonth - 1) / 2) + hijriDay + 1948440 - 385;
-    
-    const date = new Date((jd - 2440588) * 86400000);
-    return date;
+  // expected format YYYY-MM-DD
+  const parts = hijriDate.split('-');
+  const y = parseInt(parts[0]);
+  const m = parseInt(parts[1]);
+  const d = parseInt(parts[2]);
+  // approximate conversion using algorithm (not perfect but ok for UI)
+  const jd = Math.floor((11 * y + 3) / 30) + 354 * y + 30 * (m - 1) - Math.floor((m - 1) / 2) + d + 1948440 - 385;
+  const date = new Date((jd - 2440588) * 86400000);
+  return date;
 }
 
-// ========== تحويل التاريخ الميلادي إلى هجري ==========
-function gregorianToHijri(gregorianDate) {
-    const date = new Date(gregorianDate);
-    const jd = Math.floor(date.getTime() / 86400000) + 2440588;
-    
-    const hijriYear = Math.floor((30 * (jd - 1948440) + 10646) / 10631);
-    const hijriMonth = Math.min(12, Math.ceil((jd - 29 - hijriToGregorianInternal(hijriYear, 1, 1)) / 29.5) + 1);
-    
-    return { year: hijriYear, month: hijriMonth };
-}
+// Notification system
+const notificationSystem = {
+  notificationInterval: null,
+  notificationsEnabled: localStorage.getItem('notificationsEnabled') === 'true',
+  supportsNotifications: ('Notification' in window) || ('serviceWorker' in navigator),
 
-function hijriToGregorianInternal(year, month, day) {
-    return Math.floor((11 * year + 3) / 30) + 
-           354 * year + 30 * month - 
-           Math.floor((month - 1) / 2) + day + 1948440 - 385;
-}
+  init() {
+    // update badge
+    this.updateToggleButton(this.notificationsEnabled);
+  },
 
-// ========== نظام الإشعارات اليومية المتقدم ==========
-let notificationSystem = {
-    notificationInterval: null,
-    notificationsEnabled: false,
-    supportsNotifications: false,
-    
-    init: function() {
-        this.supportsNotifications = this.checkNotificationSupport();
-        this.notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-        
-        if (this.notificationsEnabled) {
-            if (this.supportsNotifications && Notification.permission === 'granted') {
-                this.startDailyReminders();
-            } else if (this.supportsNotifications) {
-                this.startDailyReminders();
-            }
-            this.updateToggleButton(true);
-        }
-        
-        this.setupNotificationButton();
-    },
-    
-    checkNotificationSupport: function() {
-        if ('Notification' in window) {
-            return true;
-        }
-        if ('serviceWorker' in navigator) {
-            return true;
-        }
-        return false;
-    },
-    
-    setupNotificationButton: function() {
-        const btn = document.getElementById('notificationToggleBtn');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                if (this.notificationsEnabled) {
-                    this.disableNotifications();
-                } else {
-                    this.enableNotifications();
-                }
-            });
-        }
-    },
-    
-    enableNotifications: function() {
-        if (!this.supportsNotifications) {
-            alert(translations[currentLanguage].notificationsUnsupported);
-            this.activateNotifications();
-            return;
-        }
+  updateToggleButton(isActive) {
+    const statusBadge = document.getElementById('notificationStatus');
+    if (!statusBadge) return;
+    if (isActive) {
+      statusBadge.textContent = 'ON';
+      statusBadge.classList.add('active');
+    } else {
+      statusBadge.textContent = 'OFF';
+      statusBadge.classList.remove('active');
+    }
+  },
 
-        if (Notification.permission === 'denied') {
-            alert(translations[currentLanguage].notificationsBlocked);
-            return;
-        }
-
-        if (Notification.permission === 'default') {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    this.activateNotifications();
-                } else if (permission === 'default') {
-                    this.activateNotifications();
-                } else {
-                    alert(translations[currentLanguage].notificationsRequired);
-                }
-            }).catch(error => {
-                console.log('خطأ في طلب الإذن:', error);
-                this.activateNotifications();
-            });
-        } else if (Notification.permission === 'granted') {
-            this.activateNotifications();
-        }
-    },
-    
-    activateNotifications: function() {
+  enableNotifications() {
+    if (!this.supportsNotifications) {
+      alert(translations[currentLanguage].notificationsUnsupported);
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      alert(translations[currentLanguage].notificationsBlocked);
+      return;
+    }
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
         this.notificationsEnabled = true;
         localStorage.setItem('notificationsEnabled', 'true');
-        localStorage.setItem('lastNotificationTime', Date.now().toString());
-        this.startDailyReminders();
         this.updateToggleButton(true);
-        
-        const trans = translations[currentLanguage];
-        this.sendNotification(
-            trans.notificationsEnabled,
-            trans.notificationsEnabledBody
-        );
-    },
-    
-    disableNotifications: function() {
-        this.notificationsEnabled = false;
-        localStorage.setItem('notificationsEnabled', 'false');
-        this.stopReminders();
-        this.updateToggleButton(false);
-        
-        alert(translations[currentLanguage].notificationsDisabled);
-    },
-    
-    startDailyReminders: function() {
-        this.stopReminders();
-        
-        const lastNotificationTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
-        const now = Date.now();
-        const timeSinceLastNotification = now - lastNotificationTime;
-        const oneDay = 24 * 60 * 60 * 1000;
-        
-        if (timeSinceLastNotification >= oneDay) {
-            this.sendDailyMessage();
-            localStorage.setItem('lastNotificationTime', now.toString());
-        }
-        
-        this.notificationInterval = setInterval(() => {
-            if (this.notificationsEnabled) {
-                const lastTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
-                const timeSinceLastMessage = Date.now() - lastTime;
-                
-                if (timeSinceLastMessage >= oneDay) {
-                    this.sendDailyMessage();
-                    localStorage.setItem('lastNotificationTime', Date.now().toString());
-                }
-            }
-        }, 60 * 60 * 1000);
-    },
-    
-    stopReminders: function() {
-        if (this.notificationInterval) {
-            clearInterval(this.notificationInterval);
-            this.notificationInterval = null;
-        }
-    },
-    
-    sendDailyMessage: function() {
-        this.sendNotification('message of calculator', 'لاتنس ذكر الله');
-    },
-    
-    sendNotification: function(title, body) {
-        try {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                const options = {
-                    body: body,
-                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
-                    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
-                    vibrate: [200, 100, 200],
-                    tag: 'age-calculator-reminder'
-                };
-                
-                const notification = new Notification(title, options);
-                notification.onclick = function() {
-                    window.focus();
-                    notification.close();
-                };
-            } else {
-                this.sendViaServiceWorker(title, body);
-            }
-        } catch (error) {
-            console.log('خطأ في الإشعار:', error);
-        }
-    },
-    
-    sendViaServiceWorker: function(title, body) {
-        if ('serviceWorker' in navigator && 'registration' in navigator.serviceWorker) {
-            navigator.serviceWorker.ready.then(registration => {
-                if (registration && registration.showNotification) {
-                    registration.showNotification(title, {
-                        body: body,
-                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
-                        vibrate: [200, 100, 200],
-                        tag: 'age-calculator-reminder'
-                    });
-                }
-            }).catch(err => {
-                console.log('خطأ Service Worker:', err);
-            });
-        }
-    },
-    
-    updateToggleButton: function(isActive) {
-        const statusBadge = document.getElementById('notificationStatus');
-        if (statusBadge) {
-            if (isActive) {
-                statusBadge.textContent = 'ON';
-                statusBadge.classList.add('active');
-            } else {
-                statusBadge.textContent = 'OFF';
-                statusBadge.classList.remove('active');
-            }
-        }
+        this.sendNotification(translations[currentLanguage].notificationsEnabled, translations[currentLanguage].notificationsEnabledBody);
+        this.startDailyReminders();
+      } else {
+        alert(translations[currentLanguage].notificationsRequired);
+      }
+    }).catch(err => console.error(err));
+  },
+
+  disableNotifications() {
+    this.notificationsEnabled = false;
+    localStorage.setItem('notificationsEnabled', 'false');
+    this.updateToggleButton(false);
+    this.stopReminders();
+    alert(translations[currentLanguage].notificationsDisabled);
+  },
+
+  startDailyReminders() {
+    this.stopReminders();
+    if (!this.notificationsEnabled) return;
+    const oneDay = 24 * 60 * 60 * 1000;
+    const last = parseInt(localStorage.getItem('lastNotificationTime') || '0');
+    const now = Date.now();
+    if (now - last >= oneDay) {
+      this.sendDailyMessage();
+      localStorage.setItem('lastNotificationTime', String(now));
     }
+    this.notificationInterval = setInterval(() => {
+      const last2 = parseInt(localStorage.getItem('lastNotificationTime') || '0');
+      if (Date.now() - last2 >= oneDay) {
+        this.sendDailyMessage();
+        localStorage.setItem('lastNotificationTime', String(Date.now()));
+      }
+    }, 60 * 60 * 1000);
+  },
+
+  stopReminders() {
+    if (this.notificationInterval) clearInterval(this.notificationInterval);
+    this.notificationInterval = null;
+  },
+
+  sendDailyMessage() {
+    const title = 'message of calculator';
+    const body = 'لاتنس ذكر الله';
+    this.sendNotification(title, body);
+  },
+
+  sendNotification(title, body) {
+    try {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const options = { body, tag: 'age-reminder' };
+        new Notification(title, options);
+      } else if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+          if (reg.showNotification) reg.showNotification(title, { body, tag: 'age-reminder' });
+        });
+      }
+    } catch (e) {
+      console.error('notification error', e);
+    }
+  }
 };
 
-// ========== نافذة طلب الإشعارات ==========
+// Utility: show prompt once
 function showNotificationPrompt() {
-    if (localStorage.getItem('notificationPromptShown') === 'true') {
-        return;
-    }
-    
-    const oldPrompt = document.getElementById('notificationPrompt');
-    if (oldPrompt) {
-        oldPrompt.remove();
-    }
-    
-    const trans = translations[currentLanguage];
-    const prompt = document.createElement('div');
-    prompt.className = 'notification-prompt';
-    prompt.id = 'notificationPrompt';
-    prompt.innerHTML = `
-        <div class="prompt-content">
-            <p>${trans.notificationPrompt}</p>
-            <div class="prompt-buttons">
-                <button class="btn-yes" id="enableNotificationsBtn">
-                    ${trans.enableNotifications}
-                </button>
-                <button class="btn-no" id="skipNotificationsBtn">
-                    ${trans.skipNotifications}
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(prompt);
-    
-    document.getElementById('enableNotificationsBtn').onclick = function() {
-        notificationSystem.enableNotifications();
-        prompt.remove();
-        localStorage.setItem('notificationPromptShown', 'true');
-    };
-    
-    document.getElementById('skipNotificationsBtn').onclick = function() {
-        prompt.remove();
-        localStorage.setItem('notificationPromptShown', 'true');
-    };
+  if (localStorage.getItem('notificationPromptShown') === 'true') return;
+  const t = translations[currentLanguage];
+  const prompt = document.createElement('div');
+  prompt.className = 'notification-prompt';
+  prompt.innerHTML = `\n    <div class="prompt-content">\n      <p>${t.notificationPrompt}</p>\n      <div class="prompt-buttons">\n        <button id="enableNotificationsBtn">${t.enableNotifications}</button>\n        <button id="skipNotificationsBtn">${t.skipNotifications}</button>\n      </div>\n    </div>`;
+  document.body.appendChild(prompt);
+  document.getElementById('enableNotificationsBtn').onclick = () => { notificationSystem.enableNotifications(); prompt.remove(); localStorage.setItem('notificationPromptShown','true'); };
+  document.getElementById('skipNotificationsBtn').onclick = () => { prompt.remove(); localStorage.setItem('notificationPromptShown','true'); };
 }
 
-// ========== دالة حساب العمر ==========
+// Age calculation (used by HTML button onclick)
 function calculateAge() {
-    const calendarType = document.getElementById('calendarType').value;
-    const birthDateInput = document.getElementById('birthDate').value;
-    const trans = translations[currentLanguage];
-    
-    if (!birthDateInput) {
-        alert(trans.errorBirthDate);
-        return;
-    }
-    
-    let birthDate;
-    let currentDate;
-    
-    if (calendarType === 'hijri') {
-        birthDate = hijriToGregorian(birthDateInput);
-        currentDate = new Date();
-    } else {
-        birthDate = new Date(birthDateInput);
-        currentDate = new Date();
-    }
-    
-    let diffMs = currentDate.getTime() - birthDate.getTime();
-    
-    if (diffMs < 0) {
-        alert(trans.errorFutureDate);
-        return;
-    }
-    
-    let ageYears = currentDate.getFullYear() - birthDate.getFullYear();
-    const monthDiff = currentDate.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
-        ageYears--;
-    }
-    
-    let lastBirthday = new Date(birthDate);
-    lastBirthday.setFullYear(currentDate.getFullYear());
-    
-    if (lastBirthday > currentDate) {
-        lastBirthday.setFullYear(currentDate.getFullYear() - 1);
-    }
-    
-    const diffFromLastBirthday = currentDate.getTime() - lastBirthday.getTime();
-    
-    const ageDays = Math.floor(diffFromLastBirthday / (1000 * 60 * 60 * 24));
-    const ageHours = Math.floor((diffFromLastBirthday % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const ageMinutes = Math.floor((diffFromLastBirthday % (1000 * 60 * 60)) / (1000 * 60));
-    
-    let nextBirthday = new Date(birthDate);
-    nextBirthday.setFullYear(currentDate.getFullYear());
-    
-    if (nextBirthday <= currentDate) {
-        nextBirthday.setFullYear(currentDate.getFullYear() + 1);
-    }
-    
-    const daysUntilNextBirthday = Math.ceil((nextBirthday.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    document.getElementById('ageYears').textContent = ageYears;
-    document.getElementById('ageDays').textContent = ageDays;
-    document.getElementById('ageHours').textContent = ageHours;
-    document.getElementById('ageMinutes').textContent = ageMinutes;
-    
-    let nextBirthdayText;
-    if (calendarType === 'hijri') {
-        nextBirthdayText = trans.nextBirthdayDays(daysUntilNextBirthday);
-    } else {
-        const locale = currentLanguage === 'ar' ? 'ar-SA' : 'en-US';
-        nextBirthdayText = nextBirthday.toLocaleDateString(locale) + ' (' + trans.nextBirthdayDays(daysUntilNextBirthday) + ')';
-    }
-    
-    document.getElementById('nextBirthday').textContent = nextBirthdayText;
-    
-    const resultContainer = document.getElementById('result');
-    resultContainer.style.display = 'block';
-    
-    localStorage.setItem('birthDate', birthDateInput);
-    localStorage.setItem('calendarType', calendarType);
-    
-    setTimeout(() => {
-        if (!notificationSystem.notificationsEnabled) {
-            showNotificationPrompt();
-        }
-    }, 2000);
+  const calendarType = document.getElementById('calendarType').value;
+  const birthDateInput = document.getElementById('birthDate').value;
+  const t = translations[currentLanguage];
+  if (!birthDateInput) { alert(t.errorBirthDate); return; }
+
+  let birthDate = calendarType === 'hijri' ? hijriToGregorian(birthDateInput) : new Date(birthDateInput);
+  const now = new Date();
+  if (birthDate.getTime() > now.getTime()) { alert(t.errorFutureDate); return; }
+
+  // calculate years
+  let years = now.getFullYear() - birthDate.getFullYear();
+  const mDiff = now.getMonth() - birthDate.getMonth();
+  if (mDiff < 0 || (mDiff === 0 && now.getDate() < birthDate.getDate())) years--;
+
+  // since last birthday
+  let lastBirthday = new Date(birthDate);
+  lastBirthday.setFullYear(now.getFullYear());
+  if (lastBirthday > now) lastBirthday.setFullYear(now.getFullYear() - 1);
+  const diff = now.getTime() - lastBirthday.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  let nextBirthday = new Date(birthDate);
+  nextBirthday.setFullYear(now.getFullYear());
+  if (nextBirthday <= now) nextBirthday.setFullYear(now.getFullYear() + 1);
+  const daysUntilNextBirthday = Math.ceil((nextBirthday.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  document.getElementById('ageYears').textContent = years;
+  document.getElementById('ageDays').textContent = days;
+  document.getElementById('ageHours').textContent = hours;
+  document.getElementById('ageMinutes').textContent = minutes;
+
+  const nextBirthdayText = (calendarType === 'hijri') ? translations[currentLanguage].nextBirthdayDays(daysUntilNextBirthday) : (nextBirthday.toLocaleDateString(currentLanguage === 'ar' ? 'ar-SA' : 'en-US') + ' (' + translations[currentLanguage].nextBirthdayDays(daysUntilNextBirthday) + ')');
+  document.getElementById('nextBirthday').textContent = nextBirthdayText;
+
+  document.getElementById('result').style.display = 'block';
+
+  localStorage.setItem('birthDate', birthDateInput);
+  localStorage.setItem('calendarType', calendarType);
+
+  // prompt for notifications if not enabled
+  setTimeout(() => { if (!notificationSystem.notificationsEnabled) showNotificationPrompt(); }, 1200);
 }
 
-// ========== الآلة الحاسبة البسيطة ==========
+// Simple calculator functions (names match HTML buttons)
 let calcDisplay = '';
-
-function appendToCalc(value) {
-    const display = document.getElementById('calcDisplay');
-    calcDisplay += value;
-    display.value = calcDisplay;
+function appendCalc(val) {
+  // replace comma with dot
+  if (val === ',') val = '.';
+  calcDisplay += val;
+  const d = document.getElementById('calcDisplay');
+  if (d) d.textContent = calcDisplay || '0';
 }
-
-function calculateResult() {
-    const display = document.getElementById('calcDisplay');
-    try {
-        calcDisplay = eval(calcDisplay).toString();
-        display.value = calcDisplay;
-    } catch (error) {
-        display.value = 'خطأ';
-        calcDisplay = '';
-    }
-}
-
-function clearCalc() {
+function calculateCalc() {
+  const d = document.getElementById('calcDisplay');
+  try {
+    const expr = calcDisplay.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    // evaluation using Function (slightly safer than eval)
+    const res = Function('return (' + expr + ')')();
+    calcDisplay = String(res);
+    if (d) d.textContent = calcDisplay;
+  } catch (e) {
+    if (d) d.textContent = 'خطأ';
     calcDisplay = '';
-    document.getElementById('calcDisplay').value = '';
+  }
+}
+function deleteCalc() {
+  calcDisplay = calcDisplay.slice(0, -1);
+  const d = document.getElementById('calcDisplay');
+  if (d) d.textContent = calcDisplay || '0';
+}
+function clearCalc() {
+  calcDisplay = '';
+  const d = document.getElementById('calcDisplay');
+  if (d) d.textContent = '0';
 }
 
-// تسجيل Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-        console.log('تنبيه: لم يتمكن من تسجيل Service Worker:', err);
-    });
+// Navigation between app sections
+function switchPage(pageName) {
+  const pages = document.querySelectorAll('.app-section');
+  pages.forEach(p => p.style.display = 'none');
+  const target = document.getElementById(pageName + '-app');
+  if (target) target.style.display = 'block';
 }
+
+// DOM ready wiring
+document.addEventListener('DOMContentLoaded', () => {
+  const menuBtn = document.getElementById('menuBtn');
+  const closeSidebar = document.getElementById('closeSidebar');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const languageToggle = document.getElementById('languageToggle');
+  const notificationToggle = document.getElementById('notificationToggle');
+
+  if (menuBtn) menuBtn.addEventListener('click', () => { sidebar.classList.add('open'); sidebarOverlay.classList.add('open'); });
+  if (closeSidebar) closeSidebar.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+  if (sidebarOverlay) sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('open'); });
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const app = btn.getAttribute('data-app');
+      if (app) switchPage(app);
+      navBtns.forEach(n => n.classList.remove('active'));
+      btn.classList.add('active');
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
+    });
+  });
+
+  if (languageToggle) languageToggle.addEventListener('click', () => { setLanguage(currentLanguage === 'ar' ? 'en' : 'ar'); });
+  if (notificationToggle) notificationToggle.addEventListener('click', () => { if (notificationSystem.notificationsEnabled) notificationSystem.disableNotifications(); else notificationSystem.enableNotifications(); });
+
+  // default: show age calculator
+  const ageApp = document.getElementById('age-calculator-app');
+  if (ageApp) ageApp.style.display = 'block';
+  const calcApp = document.getElementById('calculator-app');
+  if (calcApp) calcApp.style.display = 'none';
+
+  // set birth date default
+  const today = new Date();
+  const iso = today.toISOString().split('T')[0];
+  const birthInput = document.getElementById('birthDate');
+  if (birthInput) birthInput.value = localStorage.getItem('birthDate') || iso;
+
+  // initialize language and notifications
+  setLanguage(currentLanguage);
+  notificationSystem.init();
+
+  // try register service worker if present
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('sw register failed', err));
+  }
+});
