@@ -14,10 +14,6 @@ const translations = {
         minuteText: 'دقيقة',
         nextBirthdayLabel: '🎈 عيد ميلادك القادم:',
         nextBirthdayDays: (days) => `باقي ${days} يوم`,
-        languageToggleText: 'English',
-        languageToggleAria: 'تبديل اللغة',
-        errorBirthDate: 'الرجاء إدخال تاريخ الميلاد',
-        errorFutureDate: 'تاريخ الميلاد لا يمكن أن يكون في المستقبل!',
         notificationsLabel: 'الإشعارات',
         notificationPrompt: '🔔 هل تريد تفعيل الإشعارات لتلقي رسالة يومية؟',
         enableNotifications: '✅ نعم، فعل الإشعارات',
@@ -44,10 +40,6 @@ const translations = {
         minuteText: 'minute',
         nextBirthdayLabel: '🎈 Your Next Birthday:',
         nextBirthdayDays: (days) => `${days} days remaining`,
-        languageToggleText: 'العربية',
-        languageToggleAria: 'Toggle Language',
-        errorBirthDate: 'Please enter your birth date',
-        errorFutureDate: 'Birth date cannot be in the future!',
         notificationsLabel: 'Notifications',
         notificationPrompt: '🔔 Do you want to enable notifications to receive a daily message?',
         enableNotifications: '✅ Yes, Enable Notifications',
@@ -64,12 +56,11 @@ const translations = {
 
 let currentLanguage = localStorage.getItem('language') || 'ar';
 
-// دالة تحديث اللغة
+// ========== نظام اللغات ==========
 function setLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem('language', lang);
     
-    // تحديث اتجاه الصفحة
     const htmlElement = document.getElementById('htmlRoot');
     const html = document.querySelector('html');
     if (lang === 'ar') {
@@ -80,7 +71,6 @@ function setLanguage(lang) {
         html.dir = 'ltr';
     }
     
-    // تحديث النصوص
     const trans = translations[lang];
     document.getElementById('pageTitle').textContent = trans.pageTitle;
     document.getElementById('pageSubtitle').textContent = trans.pageSubtitle;
@@ -89,24 +79,12 @@ function setLanguage(lang) {
     document.getElementById('hijriOption').textContent = trans.hijriOption;
     document.getElementById('birthDateLabel').textContent = trans.birthDateLabel;
     document.getElementById('calculateButton').textContent = trans.calculateButton;
-    document.getElementById('languageText').textContent = trans.languageToggleText;
-    document.getElementById('languageToggle').setAttribute('aria-label', trans.languageToggleAria);
     document.getElementById('nextBirthdayLabel').textContent = trans.nextBirthdayLabel;
     document.getElementById('yearText').textContent = trans.yearText;
     document.getElementById('dayText').textContent = trans.dayText;
     document.getElementById('hourText').textContent = trans.hourText;
     document.getElementById('minuteText').textContent = trans.minuteText;
     
-    // تحديث نص الإشعارات إذا كان موجوداً
-    const notificationToggle = document.getElementById('notificationToggle');
-    if (notificationToggle) {
-        const notification = notificationToggle.querySelector('span:not(.notification-badge)');
-        if (notification) {
-            notification.textContent = trans.notificationsLabel;
-        }
-    }
-    
-    // تحديث النتيجة إذا كانت مرئية
     updateResultText();
 }
 
@@ -117,18 +95,77 @@ function updateResultText() {
     }
 }
 
-// زر التبديل بين اللغات
+// ========== إدارة القائمة الجانبية ==========
 document.addEventListener('DOMContentLoaded', function() {
+    const menuButton = document.getElementById('menuButton');
+    const closeSidebarBtn = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const navItems = document.querySelectorAll('.nav-item');
     const languageToggle = document.getElementById('languageToggle');
     
-    languageToggle.addEventListener('click', function() {
+    // فتح القائمة الجانبية
+    menuButton.addEventListener('click', () => {
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+    });
+    
+    // إغلاق القائمة الجانبية
+    closeSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+    });
+    
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+    });
+    
+    // التنقل بين الصفحات
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const pageName = item.getAttribute('data-page');
+            switchPage(pageName);
+            
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+    });
+    
+    // تبديل اللغة
+    languageToggle.addEventListener('click', () => {
         const newLang = currentLanguage === 'ar' ? 'en' : 'ar';
         setLanguage(newLang);
     });
     
-    // تحديث اللغة الأولية
+    // تهيئة نظام الإشعارات
+    notificationSystem.init();
+    
+    // تعيين التاريخ الافتراضي
+    const today = new Date();
+    const defaultDate = today.toISOString().split('T')[0];
+    document.getElementById('birthDate').value = defaultDate;
+    
+    // تعيين اللغة الأولية
     setLanguage(currentLanguage);
+    
+    console.log(translations[currentLanguage].appReady);
 });
+
+// ========== التنقل بين الصفحات ==========
+function switchPage(pageName) {
+    const pages = document.querySelectorAll('.page-content');
+    pages.forEach(page => page.style.display = 'none');
+    
+    const targetPage = document.getElementById(pageName + '-page');
+    if (targetPage) {
+        targetPage.style.display = 'block';
+        targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
 
 // ========== تحويل التاريخ الهجري إلى ميلادي ==========
 function hijriToGregorian(hijriDate) {
@@ -142,7 +179,6 @@ function hijriToGregorian(hijriDate) {
                Math.floor((hijriMonth - 1) / 2) + hijriDay + 1948440 - 385;
     
     const date = new Date((jd - 2440588) * 86400000);
-    
     return date;
 }
 
@@ -163,72 +199,54 @@ function hijriToGregorianInternal(year, month, day) {
            Math.floor((month - 1) / 2) + day + 1948440 - 385;
 }
 
-// ========== نظام الإشعارات اليومية المتقدم (متوافق مع APK) ==========
+// ========== نظام الإشعارات اليومية المتقدم ==========
 let notificationSystem = {
     notificationInterval: null,
     notificationsEnabled: false,
     supportsNotifications: false,
     
     init: function() {
-        // التحقق من دعم الإشعارات
         this.supportsNotifications = this.checkNotificationSupport();
-        
         this.notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-        this.createNotificationToggle();
         
         if (this.notificationsEnabled) {
             if (this.supportsNotifications && Notification.permission === 'granted') {
                 this.startDailyReminders();
             } else if (this.supportsNotifications) {
-                this.startDailyReminders(); // محاولة بدء النظام حتى بدون إذن
+                this.startDailyReminders();
             }
             this.updateToggleButton(true);
         }
+        
+        this.setupNotificationButton();
     },
     
     checkNotificationSupport: function() {
-        // التحقق من دعم الإشعارات في المتصفح/التطبيق
         if ('Notification' in window) {
             return true;
         }
-        // محاولة استخدام خيارات بديلة
         if ('serviceWorker' in navigator) {
             return true;
         }
         return false;
     },
     
-    createNotificationToggle: function() {
-        const oldToggle = document.getElementById('notificationToggle');
-        if (oldToggle) {
-            oldToggle.remove();
-        }
-        
-        const toggle = document.createElement('div');
-        toggle.className = 'notification-toggle';
-        toggle.id = 'notificationToggle';
-        const trans = translations[currentLanguage];
-        toggle.innerHTML = '🔔 <span>' + trans.notificationsLabel + '</span> <span class="notification-badge" id="notificationStatus">' + (this.notificationsEnabled ? 'ON' : 'OFF') + '</span>';
-        
-        toggle.onclick = () => {
-            if (this.notificationsEnabled) {
-                this.disableNotifications();
-            } else {
-                this.enableNotifications();
-            }
-        };
-        
-        document.body.appendChild(toggle);
-        
-        if (this.notificationsEnabled) {
-            toggle.classList.add('notification-active');
+    setupNotificationButton: function() {
+        const btn = document.getElementById('notificationToggleBtn');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                if (this.notificationsEnabled) {
+                    this.disableNotifications();
+                } else {
+                    this.enableNotifications();
+                }
+            });
         }
     },
     
     enableNotifications: function() {
         if (!this.supportsNotifications) {
             alert(translations[currentLanguage].notificationsUnsupported);
-            // حتى لو لا يدعم، سنحاول تفعيله
             this.activateNotifications();
             return;
         }
@@ -243,14 +261,12 @@ let notificationSystem = {
                 if (permission === 'granted') {
                     this.activateNotifications();
                 } else if (permission === 'default') {
-                    // محاولة التفعيل حتى بدون إذن في APK
                     this.activateNotifications();
                 } else {
                     alert(translations[currentLanguage].notificationsRequired);
                 }
             }).catch(error => {
                 console.log('خطأ في طلب الإذن:', error);
-                // في APK قد لا يكون هناك استجابة، لكن سنحاول تفعيل الميزة
                 this.activateNotifications();
             });
         } else if (Notification.permission === 'granted') {
@@ -287,28 +303,24 @@ let notificationSystem = {
         const lastNotificationTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
         const now = Date.now();
         const timeSinceLastNotification = now - lastNotificationTime;
-        const oneDay = 24 * 60 * 60 * 1000; // 24 ساعة
+        const oneDay = 24 * 60 * 60 * 1000;
         
-        // إذا مرت 24 ساعة أو أكثر، أرسل إشعار فوراً
         if (timeSinceLastNotification >= oneDay) {
             this.sendDailyMessage();
             localStorage.setItem('lastNotificationTime', now.toString());
         }
         
-        // تحقق كل ساعة من الحاجة لإرسال إشعار
         this.notificationInterval = setInterval(() => {
             if (this.notificationsEnabled) {
                 const lastTime = parseInt(localStorage.getItem('lastNotificationTime') || '0');
                 const timeSinceLastMessage = Date.now() - lastTime;
                 
-                // إذا مرت 24 ساعة، أرسل الإشعار التالي
                 if (timeSinceLastMessage >= oneDay) {
                     this.sendDailyMessage();
                     localStorage.setItem('lastNotificationTime', Date.now().toString());
-                    console.log('📢 تم إرسال الإشعار اليومي');
                 }
             }
-        }, 60 * 60 * 1000); // التحقق كل ساعة
+        }, 60 * 60 * 1000);
     },
     
     stopReminders: function() {
@@ -319,39 +331,30 @@ let notificationSystem = {
     },
     
     sendDailyMessage: function() {
-        // الرسالة المطلوبة
         this.sendNotification('message of calculator', 'لاتنس ذكر الله');
     },
     
     sendNotification: function(title, body) {
         try {
-            // المحاولة الأولى: استخدام Notification API الكلاسيكي
             if ('Notification' in window && Notification.permission === 'granted') {
                 const options = {
                     body: body,
                     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
                     badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
                     vibrate: [200, 100, 200],
-                    tag: 'age-calculator-reminder',
-                    requireInteraction: false
+                    tag: 'age-calculator-reminder'
                 };
                 
                 const notification = new Notification(title, options);
-                
                 notification.onclick = function() {
                     window.focus();
                     notification.close();
                 };
-                
-                console.log('✅ إشعار مرسل: ' + title);
             } else {
-                // المحاولة الثانية: Service Worker (للAPK)
                 this.sendViaServiceWorker(title, body);
             }
         } catch (error) {
             console.log('خطأ في الإشعار:', error);
-            // المحاولة الثالثة: تنبيه بديل
-            this.showFallbackAlert(title, body);
         }
     },
     
@@ -362,11 +365,9 @@ let notificationSystem = {
                     registration.showNotification(title, {
                         body: body,
                         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
-                        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎂</text></svg>',
                         vibrate: [200, 100, 200],
                         tag: 'age-calculator-reminder'
                     });
-                    console.log('✅ إشعار عبر Service Worker');
                 }
             }).catch(err => {
                 console.log('خطأ Service Worker:', err);
@@ -374,24 +375,15 @@ let notificationSystem = {
         }
     },
     
-    showFallbackAlert: function(title, body) {
-        // في حالة عدم دعم الإشعارات، نعرض alert
-        console.log('📬 رسالة: ' + title + ' - ' + body);
-    },
-    
     updateToggleButton: function(isActive) {
-        const toggle = document.getElementById('notificationToggle');
         const statusBadge = document.getElementById('notificationStatus');
-        
-        if (toggle && statusBadge) {
+        if (statusBadge) {
             if (isActive) {
-                toggle.classList.add('notification-active');
                 statusBadge.textContent = 'ON';
-                statusBadge.style.background = '#4CAF50';
+                statusBadge.classList.add('active');
             } else {
-                toggle.classList.remove('notification-active');
                 statusBadge.textContent = 'OFF';
-                statusBadge.style.background = '#f44336';
+                statusBadge.classList.remove('active');
             }
         }
     }
@@ -440,7 +432,7 @@ function showNotificationPrompt() {
     };
 }
 
-// ========== دالة حساب العمر الرئيسية ==========
+// ========== دالة حساب العمر ==========
 function calculateAge() {
     const calendarType = document.getElementById('calendarType').value;
     const birthDateInput = document.getElementById('birthDate').value;
@@ -515,13 +507,10 @@ function calculateAge() {
     
     const resultContainer = document.getElementById('result');
     resultContainer.style.display = 'block';
-    resultContainer.scrollIntoView({ behavior: 'smooth' });
     
-    // حفظ البيانات للإشعارات
     localStorage.setItem('birthDate', birthDateInput);
     localStorage.setItem('calendarType', calendarType);
     
-    // إظهار نافذة طلب الإشعارات بعد 2 ثانية
     setTimeout(() => {
         if (!notificationSystem.notificationsEnabled) {
             showNotificationPrompt();
@@ -529,44 +518,32 @@ function calculateAge() {
     }, 2000);
 }
 
-// ========== تهيئة الصفحة ==========
-document.addEventListener('DOMContentLoaded', function() {
-    // تهيئة نظام الإشعارات (متوافق مع APK)
-    notificationSystem.init();
-    
-    // تعيين التاريخ الافتراضي
-    const today = new Date();
-    const defaultDate = today.toISOString().split('T')[0];
-    document.getElementById('birthDate').value = defaultDate;
-    
-    // ربط زر الحساب بالدالة
-    const calculateButton = document.querySelector('button[onclick]');
-    if (calculateButton) {
-        calculateButton.onclick = function(e) {
-            e.preventDefault();
-            calculateAge();
-        };
-    }
-    
-    // إضافة حدث لتغيير نوع التقويم
-    const calendarSelect = document.getElementById('calendarType');
-    if (calendarSelect) {
-        calendarSelect.onchange = function() {
-            document.getElementById('result').style.display = 'none';
-        };
-    }
-    
-    console.log(translations[currentLanguage].appReady);
-});
+// ========== الآلة الحاسبة البسيطة ==========
+let calcDisplay = '';
 
-// مراقبة خروج المستخدم من التطبيق
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden && notificationSystem.notificationsEnabled) {
-        console.log('User left the app - Notifications are active');
-    }
-});
+function appendToCalc(value) {
+    const display = document.getElementById('calcDisplay');
+    calcDisplay += value;
+    display.value = calcDisplay;
+}
 
-// تسجيل Service Worker (لدعم الإشعارات في APK)
+function calculateResult() {
+    const display = document.getElementById('calcDisplay');
+    try {
+        calcDisplay = eval(calcDisplay).toString();
+        display.value = calcDisplay;
+    } catch (error) {
+        display.value = 'خطأ';
+        calcDisplay = '';
+    }
+}
+
+function clearCalc() {
+    calcDisplay = '';
+    document.getElementById('calcDisplay').value = '';
+}
+
+// تسجيل Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => {
         console.log('تنبيه: لم يتمكن من تسجيل Service Worker:', err);
